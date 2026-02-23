@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let TOTAL_MISTAKES = 3;
     let foundMistakes = 0;
     let isGameOver = false;
+    let hintGiven = false;
 
     // スコア
     let totalScore = 0;
@@ -457,6 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
             foundMistakes = 0;
             showMascot('start');
             isGameOver = false;
+            hintGiven = false;
 
             document.getElementById('level-display').textContent = `Lv.${currentLevel} ${stageData.title}`;
 
@@ -500,6 +502,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const percentage = (timeRemaining / totalTime) * 100;
             updateTimerDisplay(percentage);
 
+            if (timeRemaining <= 15 && !hintGiven && !isGameOver) {
+                triggerHint();
+            }
+
             if (timeRemaining <= 0) {
                 handleTimeOut();
             }
@@ -516,6 +522,26 @@ document.addEventListener('DOMContentLoaded', () => {
             timerBar.classList.add('danger');
         } else if (percentage <= 50) {
             timerBar.classList.add('warning');
+        }
+    }
+
+    function triggerHint() {
+        hintGiven = true;
+        showMascot('hint');
+
+        // 左側のパネルで見つかっていないパッチを1つ探す
+        const unfoundPatches = Array.from(panelLeft.querySelectorAll('.patch')).filter(p => p.dataset.found !== 'true');
+        if (unfoundPatches.length > 0) {
+            // ランダムに1つ選ぶ
+            const targetPatch = unfoundPatches[Math.floor(Math.random() * unfoundPatches.length)];
+            const mistakeId = targetPatch.dataset.mistakeId;
+
+            // 左右両方の対応するパッチにヒントアニメーションクラスを追加
+            const hintRight = panelRight.querySelector(`.patch[data-mistake-id="${mistakeId}"]`);
+            const hintLeft = panelLeft.querySelector(`.patch[data-mistake-id="${mistakeId}"]`);
+
+            if (hintRight) hintRight.classList.add('hint-animation');
+            if (hintLeft) hintLeft.classList.add('hint-animation');
         }
     }
 
@@ -629,6 +655,10 @@ document.addEventListener('DOMContentLoaded', () => {
         stars[foundMistakes].className = 'star-filled';
         showMascot('found');
         foundMistakes++;
+
+        // ヒントアニメーションがついていたら消す
+        if (rootPatchRight) rootPatchRight.classList.remove('hint-animation');
+        if (rootPatchLeft) rootPatchLeft.classList.remove('hint-animation');
 
         // クリア判定
         if (foundMistakes >= TOTAL_MISTAKES) {
@@ -746,7 +776,8 @@ document.addEventListener('DOMContentLoaded', () => {
         found: ['すごーい！✨', 'みつけたね！💖', 'やったー！🎉', 'さすが！👏', 'えらい！🌈'],
         miss: ['おしいっ！💦', 'もうちょっと！', 'がんばれ〜！', 'ここじゃないよ〜'],
         timeout: ['つぎは がんばろうね！', 'ドンマイ！💪', 'おしかったね〜！'],
-        clear: ['やったね！🎉', 'すごすぎ！👑', 'パーフェクト！💖']
+        clear: ['やったね！🎉', 'すごすぎ！👑', 'パーフェクト！💖'],
+        hint: ['どうしても見つからない？ここを見てみて！👇', 'ヒントだよ！ピカピカしてるところを見てね✨', 'あとすこし！ここがあやしいよ！👀']
     };
     let mascotEl = null;
     let mascotTimeout = null;

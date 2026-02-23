@@ -295,6 +295,29 @@ h1 {
 /* パッチの種類ごとのスタイル（JSでクラスとして付与） */
 .patch-hide {
     /* 背景画像と同じものをずらして表示するか、周囲の色で塗りつぶす */
+
+    /* ヒント機能のアニメーション（残り15秒で発動） */
+    .hint-animation {
+        animation: pulsate-hint 1.5s infinite alternate;
+        border-radius: 50%;
+        /* パッチの形に合わせる丸み */
+        box-shadow: 0 0 15px rgba(255, 235, 59, 1), 0 0 30px rgba(255, 152, 0, 0.8) inset;
+        background-color: rgba(255, 235, 59, 0.2);
+        z-index: 10;
+    }
+
+    @keyframes pulsate-hint {
+        0% {
+            opacity: 0.3;
+            transform: scale(0.9);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+    }
+
     background-color: #f7ede2;
     /* 背景に馴染みやすい色をJSで動的に上書きします */
     border-radius: 50%;

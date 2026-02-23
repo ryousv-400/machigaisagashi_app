@@ -1,5 +1,5 @@
 // Service Worker - Cache First Strategy
-const CACHE_NAME = 'machigaisagashi-v2';
+const CACHE_NAME = 'machigaisagashi-v3';
 
 // プリキャッシュするファイル一覧
 const PRECACHE_URLS = [
