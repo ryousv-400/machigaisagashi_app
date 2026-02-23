@@ -137,13 +137,57 @@ body {
 /* ヘッダー周り */
 .game-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
+    flex-direction: column;
+    padding: 8px 16px;
     background: white;
     border-radius: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* タイマーバー */
+.timer-container {
+    width: 100%;
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+
+.timer-bar {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #4caf50, #8bc34a);
+    border-radius: 4px;
+    transition: width 1s linear;
+}
+
+.timer-bar.warning {
+    background: linear-gradient(90deg, #ff9800, #ffc107);
+}
+
+.timer-bar.danger {
+    background: linear-gradient(90deg, #f44336, #ff5722);
+    animation: pulse 0.5s infinite alternate;
+}
+
+@keyframes pulse {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0.6;
+    }
 }
 
 .score-display {
@@ -537,57 +581,72 @@ h1 {
 /* --- スマートフォン・タブレット向けのレスポンシブ対応 --- */
 @media (max-width: 768px) {
     body {
-        overflow: auto;
-        /* スマホではスクロールを許可 */
+        overflow: hidden;
         align-items: flex-start;
+        height: 100vh;
+        height: 100dvh;
     }
 
     .game-container {
-        height: auto;
-        min-height: auto;
-        max-height: none;
-        padding: 8px;
+        height: 100vh;
+        height: 100dvh;
+        max-height: 100dvh;
+        padding: 6px;
+        padding-top: env(safe-area-inset-top, 6px);
+        padding-bottom: env(safe-area-inset-bottom, 6px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    #game-ui {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        /* flexの子要素がはみ出さないように */
     }
 
     .panels-container {
         flex-direction: column;
-        /* パネルを縦並びに変更 */
-        gap: 8px;
+        gap: 6px;
+        flex: 1;
+        min-height: 0;
+        /* パネルがコンテナ内に収まるように */
     }
 
     .panel {
         width: 100%;
-        /* スマホでも画像が歪まないようにアスペクト比を正方形に（画像が正方形のため） */
-        aspect-ratio: 1 / 1;
+        aspect-ratio: unset;
         flex: none;
-        /* flex: 1 による伸長を解除 */
+        /* ビューポートの40%×2枚 + ヘッダー で画面に収まる */
+        height: 40dvh;
+        max-height: 40dvh;
     }
 
     .game-header {
-        padding: 6px 12px;
-        margin-bottom: 8px;
-        border-radius: 14px;
+        padding: 4px 10px;
+        margin-bottom: 6px;
+        border-radius: 12px;
+        flex-shrink: 0;
+    }
+
+    .timer-container {
+        height: 5px;
+        margin-top: 4px;
     }
 
     h1 {
-        font-size: 1.0rem;
-        /* ヘッダーの文字をコンパクトに */
+        font-size: 0.85rem;
     }
 
     .score-display {
-        font-size: 0.9rem;
-        padding: 2px 10px;
+        font-size: 0.8rem;
+        padding: 2px 8px;
     }
 
     .progress-container {
-        font-size: 1.2rem;
-        gap: 4px;
-        /* 星を小さく＆間隔を詰める */
-    }
-
-    .timer-bar-container {
-        height: 6px;
-        margin-bottom: 6px;
+        font-size: 1.0rem;
+        gap: 2px;
     }
 
     .clear-message {
@@ -605,7 +664,6 @@ h1 {
         padding: 15px;
         width: 100%;
         max-width: none;
-        /* スマホで押しやすいようにボタンを画面幅いっぱいに大きく */
         box-sizing: border-box;
     }
 
