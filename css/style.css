@@ -1,0 +1,661 @@
+/* 基本設定：角丸と柔らかいフォント、明るい背景色 */
+:root {
+    --bg-color: #fce4ec;
+    /* 優しいピンク */
+    --panel-bg: #e1f5fe;
+    /* 優しい水色 */
+    --text-color: #4a4a4a;
+    --accent-color: #ff9800;
+    /* 星のオレンジ色 */
+    --correct-color: #4caf50;
+    /* 丸マーカーの緑色 */
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Hiragino Maru Gothic ProN', 'Rounded M+ 1c', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+    user-select: none;
+    /* 子供の誤操作（テキスト選択）防止 */
+    touch-action: manipulation;
+    /* ダブルタップズーム防止 */
+}
+
+.game-container {
+    width: 100%;
+    max-width: 900px;
+    height: 100vh;
+    max-height: 600px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+/* タイトル画面 */
+.title-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.title-logo {
+    font-size: 3rem;
+    color: #ff5252;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 0px #ffeaa7;
+    animation: bounce 2s infinite;
+}
+
+.title-image-container {
+    width: 80%;
+    max-width: 500px;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 30px;
+    border: 6px solid #ffcc80;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.title-image {
+    width: 100%;
+    display: block;
+}
+
+.start-btn {
+    font-size: 2rem;
+    padding: 15px 50px;
+    background-color: var(--correct-color);
+    color: white;
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #388e3c;
+    transition: all 0.1s;
+    font-family: inherit;
+    font-weight: bold;
+}
+
+.start-btn:active {
+    transform: translateY(6px);
+    box-shadow: 0 0 0 #388e3c;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.hidden-screen {
+    display: none !important;
+}
+
+#game-ui {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
+}
+
+/* ヘッダー周り */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+}
+
+.score-display {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ff9800;
+    background: linear-gradient(135deg, #fff8e1, #ffe0b2);
+    padding: 4px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.score-result {
+    margin: 10px 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.score-result p {
+    margin: 4px 0;
+    color: #ff9800;
+}
+
+h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #ff5252;
+}
+
+/* つかまえた星（進捗）表示 */
+.progress-container {
+    display: flex;
+    gap: 10px;
+    font-size: 2rem;
+}
+
+.star-empty {
+    opacity: 0.3;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+}
+
+.star-filled {
+    opacity: 1;
+    transform: scale(1.2);
+    color: var(--accent-color);
+    animation: starPop 0.5s ease;
+}
+
+@keyframes starPop {
+    0% {
+        transform: scale(0.5);
+    }
+
+    50% {
+        transform: scale(1.5);
+    }
+
+    100% {
+        transform: scale(1.2);
+    }
+}
+
+/* メインパネル周り */
+.panels-container {
+    display: flex;
+    flex: 1;
+    gap: 15px;
+    justify-content: center;
+}
+
+/* お手本（左）と 問題（右）のコンテナ */
+.panel {
+    flex: 1;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+    border: 4px solid #fff;
+    aspect-ratio: 1 / 1;
+    max-height: 100%;
+}
+
+/* パネル背景（写真を使用） */
+.panel-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: 100% 100%;
+    background-position: center center;
+    background-repeat: no-repeat;
+    pointer-events: none;
+}
+
+/* 間違いパッチ（画像の一部を隠す・色を変えるなどの差分要素） */
+.patch {
+    position: absolute;
+    cursor: pointer;
+    /* transitionなどはJavaScriptで制御 */
+}
+
+/* パッチの種類ごとのスタイル（JSでクラスとして付与） */
+.patch-hide {
+    /* 背景画像と同じものをずらして表示するか、周囲の色で塗りつぶす */
+    background-color: #f7ede2;
+    /* 背景に馴染みやすい色をJSで動的に上書きします */
+    border-radius: 50%;
+    /* 自然に馴染ませるため丸くぼかす */
+    filter: blur(4px);
+}
+
+.patch-color {
+    /* 色を変える（hue-rotateを利用） */
+    backdrop-filter: hue-rotate(90deg) saturate(150%);
+    border-radius: 10px;
+}
+
+.patch-add {
+    /* 新しいアイテムを追加（小さな透過画像など） */
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: drop-shadow(1px 2px 3px rgba(0, 0, 0, 0.3));
+}
+
+/* エフェクト：正解時の丸マーカー */
+.circle-marker {
+    position: absolute;
+    border: 6px solid var(--correct-color);
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 10;
+    animation: circleDraw 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes circleDraw {
+    to {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* エフェクト：お手つき（不正解）時の×マーカー */
+.x-marker {
+    position: absolute;
+    color: red;
+    font-size: 4rem;
+    font-weight: bold;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 10;
+    animation: fadeInOut 0.8s ease forwards;
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+
+    30% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+
+    70% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* クリア画面 */
+#clear-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    border-radius: 20px;
+    opacity: 1;
+    transition: opacity 0.5s;
+}
+
+#clear-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.clear-message {
+    text-align: center;
+    background: white;
+    padding: 30px 50px;
+    border-radius: 30px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    border: 4px solid #ffcc80;
+    transform: scale(0.8);
+    animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.clear-message h2 {
+    font-size: 3rem;
+    color: #ff5252;
+    margin: 10px 0;
+}
+
+.clear-message p {
+    font-size: 1.5rem;
+    margin: 10px 0 20px;
+}
+
+.clear-animation {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    animation: jump 1s infinite alternate;
+}
+
+@keyframes jump {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+#replay-button {
+    font-size: 1.8rem;
+    padding: 15px 40px;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #d87c00;
+    transition: transform 0.1s, box-shadow 0.1s;
+    font-family: inherit;
+}
+
+#replay-button:active {
+    transform: translateY(5px);
+    box-shadow: 0 0 0 #d87c00;
+}
+
+/* --- PC専用：スマホで遊ぶQRコード --- */
+.qr-code-container {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 8px 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    transition: opacity 0.3s;
+    z-index: 10;
+}
+
+.qr-code-container p {
+    margin: 0 0 4px 0;
+    font-weight: bold;
+    color: #ff6b6b;
+    font-size: 0.8rem;
+}
+
+.qr-code-container img {
+    width: 70px;
+    height: 70px;
+    border-radius: 4px;
+}
+
+/* CSS版パーティクルエフェクト用 */
+.particle {
+    position: absolute;
+    pointer-events: none;
+    font-size: 2rem;
+    animation: floatUp 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    z-index: 20;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-100px) scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* --- マスコットキャラクター（うさぎちゃん） --- */
+#mascot-container {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.mascot-character {
+    font-size: 3rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    cursor: default;
+    line-height: 1;
+}
+
+.mascot-bubble {
+    display: none;
+    position: relative;
+    bottom: 5px;
+    background: white;
+    color: #333;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+    border: 2px solid #ffcc80;
+    animation: bubblePop 0.3s ease-out;
+}
+
+.mascot-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid white;
+}
+
+@keyframes bubblePop {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+
+    60% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* --- スマートフォン・タブレット向けのレスポンシブ対応 --- */
+@media (max-width: 768px) {
+    body {
+        overflow: auto;
+        /* スマホではスクロールを許可 */
+        align-items: flex-start;
+    }
+
+    .game-container {
+        height: auto;
+        min-height: auto;
+        max-height: none;
+        padding: 8px;
+    }
+
+    .panels-container {
+        flex-direction: column;
+        /* パネルを縦並びに変更 */
+        gap: 8px;
+    }
+
+    .panel {
+        width: 100%;
+        /* スマホでも画像が歪まないようにアスペクト比を正方形に（画像が正方形のため） */
+        aspect-ratio: 1 / 1;
+        flex: none;
+        /* flex: 1 による伸長を解除 */
+    }
+
+    .game-header {
+        padding: 6px 12px;
+        margin-bottom: 8px;
+        border-radius: 14px;
+    }
+
+    h1 {
+        font-size: 1.0rem;
+        /* ヘッダーの文字をコンパクトに */
+    }
+
+    .score-display {
+        font-size: 0.9rem;
+        padding: 2px 10px;
+    }
+
+    .progress-container {
+        font-size: 1.2rem;
+        gap: 4px;
+        /* 星を小さく＆間隔を詰める */
+    }
+
+    .timer-bar-container {
+        height: 6px;
+        margin-bottom: 6px;
+    }
+
+    .clear-message {
+        padding: 10px 20px;
+        width: 90%;
+    }
+
+    .clear-message h2 {
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+    }
+
+    #replay-button {
+        font-size: 1.4rem;
+        padding: 15px;
+        width: 100%;
+        max-width: none;
+        /* スマホで押しやすいようにボタンを画面幅いっぱいに大きく */
+        box-sizing: border-box;
+    }
+
+    /* スマホ画面のときはQRコードを隠す */
+    .qr-code-container {
+        display: none !important;
+    }
+
+    /* スマホ: マスコットを小さくして邪魔にならない位置へ */
+    #mascot-container {
+        bottom: auto;
+        top: 6px;
+        left: auto;
+        right: 8px;
+        flex-direction: row-reverse;
+        gap: 4px;
+        opacity: 0.85;
+    }
+
+    .mascot-character {
+        font-size: 1.5rem;
+    }
+
+    .mascot-bubble {
+        padding: 3px 8px;
+        font-size: 0.65rem;
+        border-radius: 10px;
+        border-width: 1.5px;
+    }
+
+    .mascot-bubble::after {
+        display: none;
+    }
+}
+
+/* --- 新しい難易度パッチ用のスタイル --- */
+.patch-blur {
+    /* 背景画像をぼかす効果 */
+    backdrop-filter: blur(10px);
+    border-radius: 50%;
+}
+
+.patch-grayscale {
+    /* 背景を白黒にする効果 */
+    backdrop-filter: grayscale(100%);
+    border-radius: 20%;
+}
+
+.patch-flip {
+    /* 背景を反転させる効果（backdrop等では難しいため、色反転＋セピアで代用） */
+    backdrop-filter: invert(100%) sepia(50%);
+    border-radius: 10px;
+}
+
+.patch-invert {
+    /* 色の反転 */
+    backdrop-filter: invert(80%);
+    border-radius: 50%;
+}
+
+.patch-hue {
+    /* 色相の変更 */
+    backdrop-filter: hue-rotate(90deg);
+    border-radius: 50%;
+}
