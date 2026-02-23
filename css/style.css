@@ -11,6 +11,11 @@
     /* 丸マーカーの緑色 */
 }
 
+/* PWA: スクロール制御（Pull-to-refresh防止） */
+html {
+    overscroll-behavior: none;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -22,10 +27,17 @@ body {
     align-items: center;
     min-height: 100vh;
     overflow: hidden;
+    /* キッズ向け誤操作防止 */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
     user-select: none;
-    /* 子供の誤操作（テキスト選択）防止 */
     touch-action: manipulation;
     /* ダブルタップズーム防止 */
+    -webkit-touch-callout: none;
+    /* 長押しメニュー無効化 */
+    overscroll-behavior-y: none;
+    /* スワイプダウンPull-to-refresh防止 */
 }
 
 .game-container {
