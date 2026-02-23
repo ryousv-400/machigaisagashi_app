@@ -70,11 +70,12 @@ body {
 }
 
 .title-logo {
-    font-size: 3rem;
+    font-size: clamp(1.5rem, 8vw, 3rem);
     color: #ff5252;
     margin-bottom: 20px;
     text-shadow: 2px 2px 0px #ffeaa7;
     animation: bounce 2s infinite;
+    white-space: nowrap;
 }
 
 .title-image-container {
