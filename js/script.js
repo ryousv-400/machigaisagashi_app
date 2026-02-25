@@ -501,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const percentage = (timeRemaining / totalTime) * 100;
             updateTimerDisplay(percentage);
 
-            if (timeRemaining <= 15 && !hintGiven && !isGameOver) {
+            if (timeRemaining <= 25 && !hintGiven && !isGameOver) {
                 triggerHint();
             }
 
@@ -524,9 +524,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function getAreaName(x, y) {
+        // 座標(%)からエリア名を返す
+        let vertical = '';
+        let horizontal = '';
+        if (y <= 33) vertical = 'うえのほう';
+        else if (y <= 66) vertical = 'まんなかあたり';
+        else vertical = 'したのほう';
+
+        if (x <= 33) horizontal = 'ひだり';
+        else if (x <= 66) horizontal = 'まんなか';
+        else horizontal = 'みぎ';
+
+        // まんなか+まんなか は「ど真ん中」にする
+        if (horizontal === 'まんなか' && vertical === 'まんなかあたり') {
+            return 'まんなかあたり';
+        }
+        return `${horizontal}${vertical}`;
+    }
+
     function triggerHint() {
         hintGiven = true;
-        showMascot('hint');
 
         // 左側のパネルで見つかっていないパッチを1つ探す
         const unfoundPatches = Array.from(panelLeft.querySelectorAll('.patch')).filter(p => p.dataset.found !== 'true');
@@ -534,6 +552,25 @@ document.addEventListener('DOMContentLoaded', () => {
             // ランダムに1つ選ぶ
             const targetPatch = unfoundPatches[Math.floor(Math.random() * unfoundPatches.length)];
             const mistakeId = targetPatch.dataset.mistakeId;
+
+            // 座標からエリア名を取得
+            const stageData = getCurrentStageData();
+            const mistake = stageData.mistakes.find(m => m.id == mistakeId);
+            let areaName = 'どこか';
+            if (mistake) {
+                areaName = getAreaName(mistake.x, mistake.y);
+            }
+
+            // 抽象的だけどわかりやすいヒントメッセージを生成
+            const hintMessages = [
+                `${areaName}のエリアに ちゅうもく してみて〜👀`,
+                `${areaName}を よーく みてみて！🔍`,
+                `ヒントだよ！${areaName}が あやしいかも〜✨`,
+                `${areaName}に なにか あるかも…？🌟`,
+                `${areaName}のあたりを さがしてみてね💫`
+            ];
+            const msg = hintMessages[Math.floor(Math.random() * hintMessages.length)];
+            showMascotWithMessage(msg);
 
             // 左右両方の対応するパッチにヒントアニメーションクラスを追加
             const hintRight = panelRight.querySelector(`.patch[data-mistake-id="${mistakeId}"]`);
@@ -776,7 +813,7 @@ document.addEventListener('DOMContentLoaded', () => {
         miss: ['おしいっ！💦', 'もうちょっと！', 'がんばれ〜！', 'ここじゃないよ〜'],
         timeout: ['つぎは がんばろうね！', 'ドンマイ！💪', 'おしかったね〜！'],
         clear: ['やったね！🎉', 'すごすぎ！👑', 'パーフェクト！💖'],
-        hint: ['どうしても見つからない？ここを見てみて！👇', 'ヒントだよ！ピカピカしてるところを見てね✨', 'あとすこし！ここがあやしいよ！👀']
+        hint: ['ヒントをあげるね〜！👀']
     };
     let mascotEl = null;
     let mascotTimeout = null;
@@ -796,6 +833,11 @@ document.addEventListener('DOMContentLoaded', () => {
         createMascotElement();
         const messages = mascotMessages[type] || mascotMessages.start;
         const msg = messages[Math.floor(Math.random() * messages.length)];
+        showMascotWithMessage(msg);
+    }
+
+    function showMascotWithMessage(msg) {
+        createMascotElement();
         const bubble = document.getElementById('mascot-bubble');
         bubble.textContent = msg;
         bubble.style.display = 'block';
@@ -812,7 +854,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mascotTimeout) clearTimeout(mascotTimeout);
         mascotTimeout = setTimeout(() => {
             bubble.style.display = 'none';
-        }, 2500);
+        }, 3500);
     }
 
     replayButton.addEventListener('click', () => {
