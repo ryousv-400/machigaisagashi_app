@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
             rightImg: "assets/stage11_right.png",
             mistakes: [
                 { id: 1, x: 88.33, y: 20.0, w: 20.0, h: 26.67 },
-                { id: 2, x: 65.0, y: 92.92, w: 20.0, h: 17.5 },
+                { id: 2, x: 65.0, y: 91.5, w: 20.0, h: 14.0 },
                 { id: 3, x: 15.83, y: 22.92, w: 8.0, h: 8.0 }
             ]
         },
@@ -285,8 +285,8 @@ document.addEventListener('DOMContentLoaded', () => {
             mistakes: [
                 { id: 1, x: 32.3, y: 35.6, w: 6.9, h: 6.9 },
                 { id: 2, x: 44.9, y: 53.7, w: 8.4, h: 8.4 },
-                { id: 3, x: 34.5, y: 26.8, w: 12.2, h: 12.2 },
-                { id: 4, x: 41.4, y: 25.2, w: 8.1, h: 8.1 }
+                { id: 3, x: 30.0, y: 26.8, w: 10.0, h: 10.0 },
+                { id: 4, x: 44.0, y: 25.2, w: 7.0, h: 7.0 }
             ]
         },
         {
@@ -342,8 +342,8 @@ document.addEventListener('DOMContentLoaded', () => {
             leftImg: "assets/stage28_left.png",
             rightImg: "assets/stage28_right.png",
             mistakes: [
-                { id: 1, x: 27.0, y: 13.1, w: 8.8, h: 8.8 },
-                { id: 2, x: 23.7, y: 16.3, w: 8.4, h: 8.4 },
+                { id: 1, x: 13.0, y: 9.0, w: 8.8, h: 8.8 },
+                { id: 2, x: 32.0, y: 10.0, w: 8.4, h: 8.4 },
                 { id: 3, x: 13.0, y: 33.8, w: 9.1, h: 9.1 },
                 { id: 4, x: 65.4, y: 19.9, w: 7.8, h: 7.8 },
                 { id: 5, x: 88.4, y: 83.8, w: 10.9, h: 10.9 }
@@ -501,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const percentage = (timeRemaining / totalTime) * 100;
             updateTimerDisplay(percentage);
 
-            if (timeRemaining <= 25 && !hintGiven && !isGameOver) {
+            if (timeRemaining <= 50 && !hintGiven && !isGameOver) {
                 triggerHint();
             }
 
@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (horizontal === 'まんなか' && vertical === 'まんなかあたり') {
             return 'まんなかあたり';
         }
-        return `${horizontal}${vertical}`;
+        return `${horizontal}の ${vertical}`;
     }
 
     function triggerHint() {
@@ -563,11 +563,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 抽象的だけどわかりやすいヒントメッセージを生成
             const hintMessages = [
-                `${areaName}のエリアに ちゅうもく してみて〜👀`,
-                `${areaName}を よーく みてみて！🔍`,
-                `ヒントだよ！${areaName}が あやしいかも〜✨`,
+                `${areaName}を よーく みてね👀`,
+                `${areaName}に ひんとが あるかも！🔍`,
+                `ひんと！ ${areaName}が あやしいよ✨`,
                 `${areaName}に なにか あるかも…？🌟`,
-                `${areaName}のあたりを さがしてみてね💫`
+                `${areaName}の あたりを さがしてみてね💫`
             ];
             const msg = hintMessages[Math.floor(Math.random() * hintMessages.length)];
             showMascotWithMessage(msg);
@@ -695,6 +695,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // ヒントアニメーションがついていたら消す
         if (rootPatchRight) rootPatchRight.classList.remove('hint-animation');
         if (rootPatchLeft) rootPatchLeft.classList.remove('hint-animation');
+
+        // 正解が見つかったら、ヒントフラグをリセットして次のヒントが出るようにする
+        hintGiven = false;
 
         // クリア判定
         if (foundMistakes >= TOTAL_MISTAKES) {
