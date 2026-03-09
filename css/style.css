@@ -602,6 +602,27 @@ h1 {
     }
 }
 
+/* ヒントボタンのスタイル */
+.hint-btn {
+    margin-top: 10px;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #d87c00;
+    pointer-events: auto; /* マスコットコンテナはpointer-events:noneなのでボタンだけ有効化 */
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.hint-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #d87c00;
+}
+
 /* --- スマートフォン・タブレット向けのレスポンシブ対応 --- */
 @media (max-width: 768px) {
     body {
@@ -720,6 +741,12 @@ h1 {
 
     .mascot-bubble::after {
         display: none;
+    }
+
+    .hint-btn {
+        margin-top: 0;
+        font-size: 0.8rem;
+        padding: 6px 10px;
     }
 }
 

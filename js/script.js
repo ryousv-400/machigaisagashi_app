@@ -501,9 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const percentage = (timeRemaining / totalTime) * 100;
             updateTimerDisplay(percentage);
 
-            if (timeRemaining <= 50 && !hintGiven && !isGameOver) {
-                triggerHint();
-            }
+            // ヒント表示ロジックはマニュアルボタン化されたため削除
 
             if (timeRemaining <= 0) {
                 handleTimeOut();
@@ -578,6 +576,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (hintRight) hintRight.classList.add('hint-animation');
             if (hintLeft) hintLeft.classList.add('hint-animation');
+        } else {
+            // もう全部見つけているか、見つかっていないパッチが無い場合
+            showMascotWithMessage("もう ぜんぶ みつけたよ！すごーい！🎉");
         }
     }
 
@@ -828,8 +829,18 @@ document.addEventListener('DOMContentLoaded', () => {
         mascotEl.innerHTML = `
             <div class="mascot-character">🐰</div>
             <div class="mascot-bubble" id="mascot-bubble"></div>
+            <button id="hint-button" class="hint-btn">ヒントをもらう💡</button>
         `;
         document.body.appendChild(mascotEl);
+
+        // ヒントボタンのクリックイベントを設定
+        const hintBtn = document.getElementById('hint-button');
+        hintBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (isGameOver) return;
+            playSound('correct');
+            triggerHint();
+        });
     }
 
     function showMascot(type) {
