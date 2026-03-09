@@ -603,7 +603,7 @@ h1 {
     position: fixed;
     bottom: 10px;
     left: 10px;
-    z-index: 100;
+    z-index: 9500; /* #effect-container(9000)より上に置きボタンを確実に最前面に */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -788,6 +788,7 @@ h1 {
         flex-direction: row-reverse;
         gap: 4px;
         opacity: 0.85;
+        z-index: 9500; /* #effect-container(9000)より上を維持 */
     }
 
     .mascot-character {
