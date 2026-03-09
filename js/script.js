@@ -627,8 +627,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('stage-score-display').textContent = `このステージ: +0てん`;
             document.getElementById('total-score-display').textContent = `ごうけい: ${totalScore}てん`;
             replayBtn.textContent = 'もう１かい あそぶ';
-            // レベルを下げる（最低1）
-            currentLevel = Math.max(1, currentLevel - 1);
+            // 失敗時は同じレベルからやり直すため、currentLevelは減らさない
         }
 
         clearScreen.classList.remove('hidden-screen');
