@@ -520,6 +520,18 @@ h1 {
     }
 }
 
+/* エフェクトコンテナ：画面全体を覆うが操作を邪魔しない */
+#effect-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;        /* はみ出し要素をクリップ → スクロール防止 */
+    pointer-events: none;    /* タップ操作を一切ブロックしない */
+    z-index: 9000;
+}
+
 #replay-button {
     font-size: 1.8rem;
     padding: 15px 40px;

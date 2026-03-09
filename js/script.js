@@ -742,21 +742,21 @@ document.addEventListener('DOMContentLoaded', () => {
         effectContainer.appendChild(marker);
         setTimeout(() => marker.remove(), 1500);
 
-        // 大きなバーストリング（3重）
-        [80, 140, 200].forEach((size, i) => {
+        // バーストリング（2重に絞りDOM負荷を抑制）
+        [80, 150].forEach((size, i) => {
             const burst = document.createElement('div');
             burst.className = 'correct-burst';
             burst.style.left = `${x}px`;
             burst.style.top = `${y}px`;
             burst.style.width = `${size}px`;
             burst.style.height = `${size}px`;
-            const colors = ['#ff6bff', '#ffd93d', '#4d96ff'];
+            const colors = ['#ff6bff', '#ffd93d'];
             burst.style.borderColor = colors[i];
             effectContainer.appendChild(burst);
             burst.animate([
                 { transform: `translate(-50%, -50%) scale(0)`, opacity: 1 },
-                { transform: `translate(-50%, -50%) scale(3)`, opacity: 0 }
-            ], { duration: 700 + i * 100, delay: i * 60, easing: 'ease-out' }).onfinish = () => burst.remove();
+                { transform: `translate(-50%, -50%) scale(2.5)`, opacity: 0 }
+            ], { duration: 600 + i * 100, delay: i * 80, easing: 'ease-out' }).onfinish = () => burst.remove();
         });
 
         // 「やったー！」テキストが飛び出す
@@ -788,26 +788,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createParticles(x, y, symbols) {
-        const numParticles = 18;
+        const numParticles = 12; // スマホ性能に配慮して上限12個
         for (let i = 0; i < numParticles; i++) {
             const p = document.createElement('div');
             p.className = 'particle';
             p.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
-            const angle = (i / numParticles) * Math.PI * 2 + Math.random() * 0.5;
-            const distance = 100 + Math.random() * 150;
+            const angle = (i / numParticles) * Math.PI * 2 + Math.random() * 0.4;
+            const distance = 60 + Math.random() * 80; // 画面外に大きくはみ出さない距離
             const tx = Math.cos(angle) * distance;
-            const ty = Math.sin(angle) * distance - 80;
-            const scale = 0.8 + Math.random() * 1.2;
+            const ty = Math.sin(angle) * distance - 60;
+            const scale = 0.8 + Math.random() * 0.8;
             p.style.left = `${x}px`;
             p.style.top = `${y}px`;
-            p.style.fontSize = `${2 + Math.random() * 2}rem`;
+            p.style.fontSize = `${1.5 + Math.random() * 1.5}rem`;
 
             p.animate([
                 { transform: `translate(-50%, -50%) scale(0.3) rotate(0deg)`, opacity: 1 },
-                { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(${scale}) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+                { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(${scale}) rotate(${Math.random() * 300}deg)`, opacity: 0 }
             ], {
-                duration: 900 + Math.random() * 600,
-                delay: Math.random() * 200,
+                duration: 800 + Math.random() * 400,
+                delay: Math.random() * 100,
                 easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
             }).onfinish = () => p.remove();
             effectContainer.appendChild(p);
@@ -815,60 +815,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createConfetti() {
-        const colors = ['#ff6b8a', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6bff', '#ff9a3c', '#a855f7', '#00d4ff', '#ff4757'];
-        const emojis = ['🎊', '🎈', '⭐', '🌸', '💖', '✨', '🎀', '🦋', '🌟', '💫', '🎉', '🌈', '💥', '❤️', '🎶'];
+        const colors = ['#ff6b8a', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6bff', '#ff9a3c', '#a855f7'];
+        const emojis = ['🎊', '🎈', '⭐', '🌸', '💖', '✨', '🎀', '🦋', '🌟', '💫', '🎉'];
         const container = effectContainer;
         let count = 0;
-        const maxConfetti = 160;
+        const maxConfetti = 30; // スマホ性能に配慮して上限30個
 
         const interval = setInterval(() => {
             if (clearScreen.classList.contains('hidden-screen') || count >= maxConfetti) {
                 clearInterval(interval);
                 return;
             }
-            // カラフルな紙吹雪・絵文字・星リボン
-            for (let i = 0; i < 6; i++) {
+            // 1回に3個ずつ生成（負荷分散）
+            for (let i = 0; i < 3; i++) {
                 const p = document.createElement('div');
-                const roll = Math.random();
-                if (roll > 0.45) {
-                    // 絵文字（大きめ）
+                const isEmoji = Math.random() > 0.5;
+                if (isEmoji) {
                     p.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
-                    p.style.fontSize = `${2.5 + Math.random() * 2.5}rem`;
-                } else if (roll > 0.2) {
-                    // 大きなカラフル四角・円
-                    p.style.width = `${14 + Math.random() * 18}px`;
-                    p.style.height = `${10 + Math.random() * 14}px`;
-                    p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                    p.style.borderRadius = Math.random() > 0.4 ? '50%' : '3px';
+                    p.style.fontSize = `${2 + Math.random() * 2}rem`;
                 } else {
-                    // リボン形（細長い長方形）
-                    p.style.width = `${6 + Math.random() * 8}px`;
-                    p.style.height = `${20 + Math.random() * 20}px`;
+                    // カラフル四角・リボン
+                    const isRibbon = Math.random() > 0.5;
+                    p.style.width = isRibbon ? `${5 + Math.random() * 6}px` : `${10 + Math.random() * 12}px`;
+                    p.style.height = isRibbon ? `${16 + Math.random() * 16}px` : `${8 + Math.random() * 10}px`;
                     p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                    p.style.borderRadius = '3px';
+                    p.style.borderRadius = isRibbon ? '3px' : (Math.random() > 0.5 ? '50%' : '2px');
                 }
-                p.style.position = 'fixed';
+                // position:absolute + コンテナがoverflow:hiddenなのでスクロール不発生
+                p.style.position = 'absolute';
                 p.style.left = `${Math.random() * 100}%`;
                 p.style.top = `-30px`;
-                p.style.zIndex = '9999';
-                p.style.pointerEvents = 'none';
+                p.style.pointerEvents = 'none'; // タップを絶対にブロックしない
 
-                const swayX = (Math.random() - 0.5) * 300;
-                const rotation = Math.random() * 1080 - 540;
-                const duration = 1800 + Math.random() * 2500;
+                // 水平ぶれ幅を画面幅の15%以内に制限してはみ出し抑制
+                const swayX = (Math.random() - 0.5) * window.innerWidth * 0.3;
+                const rotation = Math.random() * 720 - 360;
+                const duration = 2000 + Math.random() * 1500;
 
                 p.animate([
                     { transform: `translateX(0) translateY(0) rotate(0deg)`, opacity: 1 },
-                    { transform: `translateX(${swayX * 0.4}px) translateY(${window.innerHeight * 0.5}px) rotate(${rotation * 0.5}deg)`, opacity: 1, offset: 0.5 },
-                    { transform: `translateX(${swayX}px) translateY(${window.innerHeight + 60}px) rotate(${rotation}deg)`, opacity: 0.5 }
-                ], {
-                    duration: duration,
-                    easing: 'linear'
-                }).onfinish = () => p.remove();
+                    { transform: `translateX(${swayX * 0.5}px) translateY(${window.innerHeight * 0.5}px) rotate(${rotation * 0.5}deg)`, opacity: 1, offset: 0.5 },
+                    { transform: `translateX(${swayX}px) translateY(${window.innerHeight + 40}px) rotate(${rotation}deg)`, opacity: 0.4 }
+                ], { duration, easing: 'linear' }).onfinish = () => p.remove();
                 container.appendChild(p);
                 count++;
             }
-        }, 80);
+        }, 150); // 150msごとに生成（80msから緩和してCPU負荷を下げる）
     }
 
     // ===== マスコットキャラクター（うさぎちゃん） =====
