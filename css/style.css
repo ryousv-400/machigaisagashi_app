@@ -339,18 +339,20 @@ h1 {
     filter: drop-shadow(1px 2px 3px rgba(0, 0, 0, 0.3));
 }
 
-/* エフェクト：正解時の丸マーカー */
+/* エフェクト：正解時の丸マーカー（虹色グロー強化版） */
 .circle-marker {
     position: absolute;
-    border: 6px solid var(--correct-color);
+    border: 8px solid #ff6bff;
     border-radius: 50%;
-    width: 80px;
-    height: 80px;
+    width: 130px;
+    height: 130px;
     transform: translate(-50%, -50%) scale(0);
     opacity: 0;
     pointer-events: none;
     z-index: 10;
-    animation: circleDraw 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    animation: circleDraw 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
+               circleGlow 0.8s ease-out 0.5s forwards;
+    box-shadow: 0 0 20px #ff6bff, 0 0 40px #ffd93d, 0 0 60px #6bcb77;
 }
 
 @keyframes circleDraw {
@@ -358,6 +360,35 @@ h1 {
         transform: translate(-50%, -50%) scale(1);
         opacity: 1;
     }
+}
+
+@keyframes circleGlow {
+    0%   { box-shadow: 0 0 20px #ff6bff, 0 0 40px #ffd93d; opacity: 1; }
+    50%  { box-shadow: 0 0 40px #4d96ff, 0 0 80px #ff6b6b, 0 0 100px #6bcb77; opacity: 0.8; }
+    100% { box-shadow: none; opacity: 0; }
+}
+
+/* 正解バースト（広がるリング） */
+.correct-burst {
+    position: absolute;
+    border: 6px solid rgba(255, 200, 0, 0.9);
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    pointer-events: none;
+    z-index: 9;
+}
+
+/* 正解テキスト「やったー！」 */
+.correct-text {
+    position: absolute;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 8px #ff6bff, 2px 2px 0 #ff9800, -2px -2px 0 #4d96ff;
+    pointer-events: none;
+    z-index: 30;
+    white-space: nowrap;
 }
 
 /* エフェクト：お手つき（不正解）時の×マーカー */
@@ -433,24 +464,43 @@ h1 {
     margin: 10px 0;
 }
 
+/* 虹色グラデーション回転テキスト（クリア時タイトル） */
+.rainbow-text {
+    background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #ff6bff, #ff9a3c, #ff6b6b);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: rainbowShift 1.5s linear infinite, rainbowBounce 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes rainbowShift {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+}
+
+@keyframes rainbowBounce {
+    from { transform: scale(1) translateY(0); }
+    to   { transform: scale(1.08) translateY(-6px); }
+}
+
 .clear-message p {
     font-size: 1.5rem;
     margin: 10px 0 20px;
 }
 
 .clear-animation {
-    font-size: 4rem;
+    font-size: 5rem;
     margin-bottom: 20px;
-    animation: jump 1s infinite alternate;
+    animation: jump 0.6s infinite alternate;
 }
 
 @keyframes jump {
     from {
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
-
     to {
-        transform: translateY(-20px);
+        transform: translateY(-30px) scale(1.2);
     }
 }
 
@@ -515,11 +565,11 @@ h1 {
     border-radius: 4px;
 }
 
-/* CSS版パーティクルエフェクト用 */
+/* CSS版パーティクルエフェクト用（強化版：大きく） */
 .particle {
     position: absolute;
     pointer-events: none;
-    font-size: 2rem;
+    font-size: 3rem;
     animation: floatUp 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
     z-index: 20;
 }

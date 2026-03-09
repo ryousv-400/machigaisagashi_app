@@ -602,6 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('score-display').textContent = totalScore;
 
             resultTitle.textContent = '🎉 やったね！ 🎉';
+            resultTitle.classList.add('rainbow-text');
             resultDesc.textContent = `ぜんぶ みつけたよ！`;
             document.getElementById('stage-score-display').textContent = `このステージ: +${stageScore}てん`;
             document.getElementById('total-score-display').textContent = `ごうけい: ${totalScore}てん`;
@@ -623,6 +624,7 @@ document.addEventListener('DOMContentLoaded', () => {
             createConfetti();
         } else {
             resultTitle.textContent = '⏱ タイムアップ！ ⏱';
+            resultTitle.classList.remove('rainbow-text');
             resultDesc.textContent = `あと ${TOTAL_MISTAKES - foundMistakes}こ だったね！`;
             document.getElementById('stage-score-display').textContent = `このステージ: +0てん`;
             document.getElementById('total-score-display').textContent = `ごうけい: ${totalScore}てん`;
@@ -690,6 +692,19 @@ document.addEventListener('DOMContentLoaded', () => {
         showCorrectEffect(e.clientX, e.clientY);
         stars[foundMistakes].className = 'star-filled';
         showMascot('found');
+        // マスコットの派手なジャンプ＋回転アニメーション
+        setTimeout(() => {
+            const char = mascotEl && mascotEl.querySelector('.mascot-character');
+            if (char) {
+                char.animate([
+                    { transform: 'translateY(0) scale(1) rotate(0deg)' },
+                    { transform: 'translateY(-40px) scale(1.6) rotate(-25deg)', offset: 0.3 },
+                    { transform: 'translateY(-20px) scale(1.4) rotate(20deg)', offset: 0.55 },
+                    { transform: 'translateY(-45px) scale(1.5) rotate(-15deg)', offset: 0.75 },
+                    { transform: 'translateY(0) scale(1) rotate(0deg)' }
+                ], { duration: 900, easing: 'ease-in-out' });
+            }
+        }, 50);
         foundMistakes++;
 
         // ヒントアニメーションがついていたら消す
@@ -718,12 +733,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showCorrectEffect(x, y) {
         playSound('correct');
+
+        // 虹色グロー丸マーカー
         const marker = document.createElement('div');
         marker.className = 'circle-marker';
         marker.style.left = `${x}px`;
         marker.style.top = `${y}px`;
         effectContainer.appendChild(marker);
-        createParticles(x, y, ['⭐', '✨', '💖']);
+        setTimeout(() => marker.remove(), 1500);
+
+        // 大きなバーストリング（3重）
+        [80, 140, 200].forEach((size, i) => {
+            const burst = document.createElement('div');
+            burst.className = 'correct-burst';
+            burst.style.left = `${x}px`;
+            burst.style.top = `${y}px`;
+            burst.style.width = `${size}px`;
+            burst.style.height = `${size}px`;
+            const colors = ['#ff6bff', '#ffd93d', '#4d96ff'];
+            burst.style.borderColor = colors[i];
+            effectContainer.appendChild(burst);
+            burst.animate([
+                { transform: `translate(-50%, -50%) scale(0)`, opacity: 1 },
+                { transform: `translate(-50%, -50%) scale(3)`, opacity: 0 }
+            ], { duration: 700 + i * 100, delay: i * 60, easing: 'ease-out' }).onfinish = () => burst.remove();
+        });
+
+        // 「やったー！」テキストが飛び出す
+        const text = document.createElement('div');
+        text.className = 'correct-text';
+        text.textContent = 'やったー！🎉';
+        text.style.left = `${x}px`;
+        text.style.top = `${y}px`;
+        effectContainer.appendChild(text);
+        text.animate([
+            { transform: 'translate(-50%, -50%) scale(0.3) rotate(-15deg)', opacity: 1 },
+            { transform: 'translate(-50%, calc(-50% - 60px)) scale(1.3) rotate(8deg)', opacity: 1, offset: 0.4 },
+            { transform: 'translate(-50%, calc(-50% - 110px)) scale(1) rotate(-3deg)', opacity: 0 }
+        ], { duration: 1200, easing: 'ease-out' }).onfinish = () => text.remove();
+
+        // 大量のパーティクル（星・ハート・キラキラ）
+        createParticles(x, y, ['⭐', '✨', '💖', '🌟', '💫', '❤️', '🎉', '💥', '🌈', '🎊']);
     }
 
     function showWrongEffect(x, y) {
@@ -738,23 +788,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createParticles(x, y, symbols) {
-        const numParticles = 5;
+        const numParticles = 18;
         for (let i = 0; i < numParticles; i++) {
             const p = document.createElement('div');
             p.className = 'particle';
             p.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
-            const angle = Math.random() * Math.PI * 2;
-            const distance = 50 + Math.random() * 50;
+            const angle = (i / numParticles) * Math.PI * 2 + Math.random() * 0.5;
+            const distance = 100 + Math.random() * 150;
             const tx = Math.cos(angle) * distance;
-            const ty = Math.sin(angle) * distance - 50;
+            const ty = Math.sin(angle) * distance - 80;
+            const scale = 0.8 + Math.random() * 1.2;
             p.style.left = `${x}px`;
             p.style.top = `${y}px`;
+            p.style.fontSize = `${2 + Math.random() * 2}rem`;
 
             p.animate([
-                { transform: `translate(-50%, -50%) scale(0.5)`, opacity: 1 },
-                { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(1.5)`, opacity: 0 }
+                { transform: `translate(-50%, -50%) scale(0.3) rotate(0deg)`, opacity: 1 },
+                { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(${scale}) rotate(${Math.random() * 360}deg)`, opacity: 0 }
             ], {
-                duration: 800 + Math.random() * 400,
+                duration: 900 + Math.random() * 600,
+                delay: Math.random() * 200,
                 easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
             }).onfinish = () => p.remove();
             effectContainer.appendChild(p);
@@ -762,51 +815,60 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createConfetti() {
-        const colors = ['#ff6b8a', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6bff', '#ff9a3c', '#a855f7'];
-        const emojis = ['🎊', '🎈', '⭐', '🌸', '💖', '✨', '🎀', '🦋'];
+        const colors = ['#ff6b8a', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6bff', '#ff9a3c', '#a855f7', '#00d4ff', '#ff4757'];
+        const emojis = ['🎊', '🎈', '⭐', '🌸', '💖', '✨', '🎀', '🦋', '🌟', '💫', '🎉', '🌈', '💥', '❤️', '🎶'];
         const container = effectContainer;
         let count = 0;
-        const maxConfetti = 60;
+        const maxConfetti = 160;
 
         const interval = setInterval(() => {
             if (clearScreen.classList.contains('hidden-screen') || count >= maxConfetti) {
                 clearInterval(interval);
                 return;
             }
-            // カラフルな四角形パーティクル
-            for (let i = 0; i < 3; i++) {
+            // カラフルな紙吹雪・絵文字・星リボン
+            for (let i = 0; i < 6; i++) {
                 const p = document.createElement('div');
-                const isEmoji = Math.random() > 0.6;
-                if (isEmoji) {
+                const roll = Math.random();
+                if (roll > 0.45) {
+                    // 絵文字（大きめ）
                     p.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
-                    p.style.fontSize = `${1.5 + Math.random() * 1.5}rem`;
-                } else {
-                    p.style.width = `${8 + Math.random() * 10}px`;
-                    p.style.height = `${6 + Math.random() * 8}px`;
+                    p.style.fontSize = `${2.5 + Math.random() * 2.5}rem`;
+                } else if (roll > 0.2) {
+                    // 大きなカラフル四角・円
+                    p.style.width = `${14 + Math.random() * 18}px`;
+                    p.style.height = `${10 + Math.random() * 14}px`;
                     p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                    p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                    p.style.borderRadius = Math.random() > 0.4 ? '50%' : '3px';
+                } else {
+                    // リボン形（細長い長方形）
+                    p.style.width = `${6 + Math.random() * 8}px`;
+                    p.style.height = `${20 + Math.random() * 20}px`;
+                    p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    p.style.borderRadius = '3px';
                 }
                 p.style.position = 'fixed';
                 p.style.left = `${Math.random() * 100}%`;
-                p.style.top = `-20px`;
+                p.style.top = `-30px`;
                 p.style.zIndex = '9999';
                 p.style.pointerEvents = 'none';
 
-                const swayX = (Math.random() - 0.5) * 200;
-                const rotation = Math.random() * 720 - 360;
-                const duration = 2000 + Math.random() * 2000;
+                const swayX = (Math.random() - 0.5) * 300;
+                const rotation = Math.random() * 1080 - 540;
+                const duration = 1800 + Math.random() * 2500;
 
                 p.animate([
                     { transform: `translateX(0) translateY(0) rotate(0deg)`, opacity: 1 },
-                    { transform: `translateX(${swayX}px) translateY(${window.innerHeight + 50}px) rotate(${rotation}deg)`, opacity: 0.6 }
+                    { transform: `translateX(${swayX * 0.4}px) translateY(${window.innerHeight * 0.5}px) rotate(${rotation * 0.5}deg)`, opacity: 1, offset: 0.5 },
+                    { transform: `translateX(${swayX}px) translateY(${window.innerHeight + 60}px) rotate(${rotation}deg)`, opacity: 0.5 }
                 ], {
                     duration: duration,
-                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                    easing: 'linear'
                 }).onfinish = () => p.remove();
                 container.appendChild(p);
                 count++;
             }
-        }, 100);
+        }, 80);
     }
 
     // ===== マスコットキャラクター（うさぎちゃん） =====
