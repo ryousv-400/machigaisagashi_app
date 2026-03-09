@@ -877,14 +877,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createMascotElement() {
         if (mascotEl) return;
-        mascotEl = document.createElement('div');
-        mascotEl.id = 'mascot-container';
-        mascotEl.innerHTML = `
-            <div class="mascot-character">🐰</div>
-            <div class="mascot-bubble" id="mascot-bubble"></div>
-            <button id="hint-button" class="hint-btn">ヒントをもらう💡</button>
-        `;
-        document.body.appendChild(mascotEl);
+        // HTML に静的配置済みの要素を取得（body への動的追加は廃止）
+        mascotEl = document.getElementById('mascot-container');
 
         // ヒントボタンのクリックイベントを設定
         const hintBtn = document.getElementById('hint-button');

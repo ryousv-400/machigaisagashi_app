@@ -598,63 +598,59 @@ h1 {
     }
 }
 
-/* --- マスコットキャラクター（うさぎちゃん） --- */
+/* --- マスコット＋ヒントボタン行（通常フローに埋め込み） --- */
 #mascot-container {
-    position: fixed;
-    bottom: 10px;
-    left: 10px;
-    z-index: 9500; /* #effect-container(9000)より上に置きボタンを確実に最前面に */
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
+    gap: 8px;
+    padding: 4px 12px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    margin-bottom: 8px;
+    flex-shrink: 0;
+    /* 通常フローで配置（浮かし配置を廃止） */
 }
 
 .mascot-character {
-    font-size: 3rem;
+    font-size: 2rem;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-    cursor: default;
     line-height: 1;
+    flex-shrink: 0;
 }
 
 .mascot-bubble {
     display: none;
-    position: relative;
-    bottom: 5px;
-    background: white;
+    flex: 1;           /* 残りスペースを占有 */
+    min-width: 0;      /* flex子要素のはみ出し防止 */
+    background: #fffde7;
     color: #333;
-    padding: 6px 12px;
-    border-radius: 16px;
+    padding: 4px 10px;
+    border-radius: 12px;
     font-size: 0.85rem;
     font-weight: bold;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     border: 2px solid #ffcc80;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     animation: bubblePop 0.3s ease-out;
 }
 
+/* 吹き出し矢印：行レイアウトでは不要なので非表示 */
 .mascot-bubble::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-top: 8px solid white;
+    display: none;
 }
 
 @keyframes bubblePop {
     0% {
-        transform: scale(0.3);
+        transform: scale(0.5);
         opacity: 0;
     }
 
     60% {
-        transform: scale(1.1);
+        transform: scale(1.05);
         opacity: 1;
     }
 
@@ -664,24 +660,25 @@ h1 {
     }
 }
 
-/* ヒントボタンのスタイル */
+/* ヒントボタン */
 .hint-btn {
-    margin-top: 10px;
+    flex-shrink: 0;
     background-color: var(--accent-color);
     color: white;
     border: none;
-    border-radius: 20px;
-    padding: 8px 16px;
-    font-size: 1rem;
+    border-radius: 16px;
+    padding: 6px 14px;
+    font-size: 0.95rem;
     font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 4px 0 #d87c00;
-    pointer-events: auto; /* マスコットコンテナはpointer-events:noneなのでボタンだけ有効化 */
+    box-shadow: 0 3px 0 #d87c00;
     transition: transform 0.1s, box-shadow 0.1s;
+    font-family: inherit;
+    white-space: nowrap;
 }
 
 .hint-btn:active {
-    transform: translateY(4px);
+    transform: translateY(3px);
     box-shadow: 0 0 0 #d87c00;
 }
 
@@ -724,10 +721,11 @@ h1 {
     .panel {
         width: 100%;
         aspect-ratio: unset;
-        flex: none;
-        /* ビューポートの40%×2枚 + ヘッダー で画面に収まる */
-        height: 40dvh;
-        max-height: 40dvh;
+        /* マスコット行が加わったため flex:1 で残り高さを均等分割 */
+        flex: 1;
+        min-height: 0;
+        height: auto;
+        max-height: none;
     }
 
     .game-header {
@@ -779,37 +777,27 @@ h1 {
         display: none !important;
     }
 
-    /* スマホ: マスコットを小さくして邪魔にならない位置へ */
+    /* スマホ: マスコット行をコンパクトに */
     #mascot-container {
-        bottom: auto;
-        top: 6px;
-        left: auto;
-        right: 8px;
-        flex-direction: row-reverse;
-        gap: 4px;
-        opacity: 0.85;
-        z-index: 9500; /* #effect-container(9000)より上を維持 */
+        padding: 3px 8px;
+        gap: 6px;
+        margin-bottom: 4px;
+        border-radius: 12px;
     }
 
     .mascot-character {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
     }
 
     .mascot-bubble {
+        font-size: 0.7rem;
         padding: 3px 8px;
-        font-size: 0.65rem;
-        border-radius: 10px;
-        border-width: 1.5px;
-    }
-
-    .mascot-bubble::after {
-        display: none;
     }
 
     .hint-btn {
-        margin-top: 0;
-        font-size: 0.8rem;
-        padding: 6px 10px;
+        font-size: 0.78rem;
+        padding: 5px 10px;
+        border-radius: 12px;
     }
 }
 
