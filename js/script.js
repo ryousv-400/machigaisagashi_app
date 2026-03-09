@@ -568,7 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 `${areaName}の あたりを さがしてみてね💫`
             ];
             const msg = hintMessages[Math.floor(Math.random() * hintMessages.length)];
-            showMascotWithMessage(msg);
+            showMascotWithMessage(msg, true); // ヒントは自動消去しない
 
             // 左右両方の対応するパッチにヒントアニメーションクラスを追加
             const hintRight = panelRight.querySelector(`.patch[data-mistake-id="${mistakeId}"]`);
@@ -578,7 +578,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (hintLeft) hintLeft.classList.add('hint-animation');
         } else {
             // もう全部見つけているか、見つかっていないパッチが無い場合
-            showMascotWithMessage("もう ぜんぶ みつけたよ！すごーい！🎉");
+            showMascotWithMessage("もう ぜんぶ みつけたよ！すごーい！🎉", true); // ヒントは自動消去しない
         }
     }
 
@@ -897,7 +897,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showMascotWithMessage(msg);
     }
 
-    function showMascotWithMessage(msg) {
+    function showMascotWithMessage(msg, persistent = false) {
         createMascotElement();
         const bubble = document.getElementById('mascot-bubble');
         bubble.textContent = msg;
@@ -913,9 +913,13 @@ document.addEventListener('DOMContentLoaded', () => {
         ], { duration: 400, easing: 'ease-in-out' });
 
         if (mascotTimeout) clearTimeout(mascotTimeout);
-        mascotTimeout = setTimeout(() => {
-            bubble.style.display = 'none';
-        }, 3500);
+        if (!persistent) {
+            // ヒント以外のリアクションは3.5秒後に自動消去
+            mascotTimeout = setTimeout(() => {
+                bubble.style.display = 'none';
+            }, 3500);
+        }
+        // persistent=true（ヒント）の場合は消えずに残り、次のメッセージで上書きされる
     }
 
     replayButton.addEventListener('click', () => {
