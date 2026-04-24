@@ -1,0 +1,36 @@
+.hotspot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  /* 5歳児が押しやすいよう透明な当たり判定を確保 */
+}
+
+.hotspot.hinting {
+  background: rgba(255, 207, 58, 0.28);
+  border: 4px dashed rgba(255, 154, 60, 0.9);
+  animation: hintPulse 1s ease-in-out infinite alternate;
+  box-shadow: 0 0 18px rgba(255, 207, 58, 0.9);
+}
+
+@keyframes hintPulse {
+  from { transform: translate(-50%, -50%) scale(0.95); opacity: 0.6; }
+  to { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+}
+
+.hotspot.found {
+  background: transparent;
+  border: 6px solid #ff6fa8;
+  box-shadow: 0 0 16px rgba(255, 111, 168, 0.7);
+  cursor: default;
+  pointer-events: none;
+}
+
+.mark {
+  display: none; /* 枠線で十分見える */
+}

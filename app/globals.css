@@ -1,0 +1,254 @@
+/* ============================
+   5歳児向け まちがいさがし - グローバルスタイル
+   パステル・丸み・ふわふわ最優先
+   ============================ */
+
+:root {
+  /* パステルカラーパレット */
+  --pink-50: #fff0f6;
+  --pink-100: #ffe3ef;
+  --pink-300: #ffb3d1;
+  --pink-500: #ff6fa8;
+  --mint-100: #d4f4e0;
+  --mint-300: #8fe3b3;
+  --mint-500: #3ccf7a;
+  --sky-100: #e0f4ff;
+  --sky-300: #8fd3ff;
+  --sky-500: #3fb0ff;
+  --cream-100: #fff7e0;
+  --cream-300: #ffe29a;
+  --yellow-400: #ffcf3a;
+  --lavender-300: #d4b3ff;
+  --orange-400: #ff9a3c;
+
+  --text: #4a3f55;
+  --text-soft: #7a6b85;
+
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --radius-xl: 40px;
+
+  --shadow-soft: 0 8px 20px rgba(255, 111, 168, 0.18);
+  --shadow-pop: 0 6px 0 rgba(0, 0, 0, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "Hiragino Maru Gothic ProN", "Rounded Mplus 1c", "M PLUS Rounded 1c", "Yu Gothic", sans-serif;
+  color: var(--text);
+  background: linear-gradient(180deg, #fff7fb 0%, #f0f8ff 100%);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+}
+
+body {
+  overflow: hidden;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+img {
+  user-drag: none;
+  -webkit-user-drag: none;
+}
+
+/* きらきら背景（タイトル等で使用） */
+.sparkle-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.sparkle-bg::before,
+.sparkle-bg::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(2px 2px at 20% 30%, rgba(255, 207, 58, 0.8), transparent 60%),
+    radial-gradient(3px 3px at 65% 50%, rgba(255, 111, 168, 0.6), transparent 60%),
+    radial-gradient(2px 2px at 80% 20%, rgba(63, 176, 255, 0.7), transparent 60%),
+    radial-gradient(2px 2px at 35% 75%, rgba(143, 227, 179, 0.7), transparent 60%),
+    radial-gradient(3px 3px at 50% 10%, rgba(212, 179, 255, 0.8), transparent 60%),
+    radial-gradient(2px 2px at 10% 60%, rgba(255, 207, 58, 0.7), transparent 60%),
+    radial-gradient(2px 2px at 90% 80%, rgba(255, 111, 168, 0.6), transparent 60%);
+  animation: sparkleDrift 18s linear infinite;
+}
+
+.sparkle-bg::after {
+  animation-duration: 26s;
+  animation-direction: reverse;
+  opacity: 0.7;
+}
+
+@keyframes sparkleDrift {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-20px, -40px); }
+}
+
+/* ふわふわボタン（基本） */
+.cute-btn {
+  border: none;
+  border-radius: var(--radius-xl);
+  font-weight: 900;
+  color: #fff;
+  padding: 18px 34px;
+  font-size: 1.4rem;
+  letter-spacing: 0;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.12), 0 12px 24px rgba(255, 111, 168, 0.25);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.cute-btn:active {
+  transform: translateY(6px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12), 0 4px 8px rgba(255, 111, 168, 0.2);
+}
+
+.cute-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), transparent 50%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* バウンス */
+@keyframes bounce-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes wobble-soft {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.3); opacity: 0; }
+  60% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.rainbow-text {
+  background: linear-gradient(90deg, #ff6fa8, #ffcf3a, #3ccf7a, #3fb0ff, #d4b3ff, #ff6fa8);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow-shift 3s linear infinite;
+}
+
+@keyframes rainbow-shift {
+  from { background-position: 0% 50%; }
+  to { background-position: 300% 50%; }
+}
+
+/* 画面全体のセーフエリア */
+.app-root {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: stretch;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  z-index: 1;
+}
+
+/* ============================
+   PC/タブレット横幅では「スマホ型カード」として中央表示
+   スマホ (max-width: 599px) ではこの上書きは効かず、全画面のまま
+   ============================ */
+@media (min-width: 600px) {
+  body {
+    overflow: auto;
+    background:
+      radial-gradient(ellipse 60% 40% at 15% 20%, rgba(255, 179, 209, 0.35), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 85% 80%, rgba(143, 211, 255, 0.35), transparent 60%),
+      radial-gradient(ellipse 40% 30% at 80% 15%, rgba(255, 207, 58, 0.2), transparent 70%),
+      radial-gradient(ellipse 40% 30% at 20% 85%, rgba(212, 179, 255, 0.25), transparent 70%),
+      linear-gradient(135deg, #fff0f6 0%, #e0f4ff 55%, #f1e1ff 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .app-root {
+    position: relative;
+    inset: auto;
+    width: min(420px, calc(100vw - 32px));
+    height: min(820px, calc(100vh - 32px));
+    border-radius: 40px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #fff7fb 0%, #f0f8ff 100%);
+    box-shadow:
+      0 0 0 4px #fff,
+      0 0 0 10px rgba(255, 179, 209, 0.5),
+      0 30px 70px rgba(255, 111, 168, 0.25),
+      0 50px 120px rgba(63, 176, 255, 0.18);
+    padding: 0;
+  }
+
+  /* カード内のきらきら背景もカード形にクリップ */
+  .sparkle-bg {
+    border-radius: 40px;
+  }
+
+  /* カードの上にラベル表示（どのサイズで見ているかわかるように） */
+  .app-root::before {
+    content: "📱 スマホ表示プレビュー";
+    position: absolute;
+    top: -32px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    font-weight: 900;
+    color: rgba(74, 63, 85, 0.45);
+    letter-spacing: 1px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+}
+
+/* 大画面 (デスクトップ) ではもう一段装飾 */
+@media (min-width: 1024px) {
+  .app-root {
+    box-shadow:
+      0 0 0 4px #fff,
+      0 0 0 12px rgba(255, 179, 209, 0.6),
+      0 0 0 16px rgba(255, 255, 255, 0.8),
+      0 40px 100px rgba(255, 111, 168, 0.3),
+      0 60px 150px rgba(63, 176, 255, 0.22);
+  }
+}
+
+/* scrollbar 非表示 */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* ひらがな禁則 */
+.nowrap {
+  white-space: nowrap;
+}

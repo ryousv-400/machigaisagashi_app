@@ -1,0 +1,422 @@
+[
+  {
+    "id": 1,
+    "slug": "stamp_01_rainbow_star",
+    "title": "にじいろスター",
+    "src": "/kids/stamps/stamp_01_rainbow_star.png",
+    "width": 512,
+    "height": 490,
+    "alphaBounds": [
+      0,
+      0,
+      512,
+      490
+    ]
+  },
+  {
+    "id": 2,
+    "slug": "stamp_02_heart_jewel",
+    "title": "ハートジュエル",
+    "src": "/kids/stamps/stamp_02_heart_jewel.png",
+    "width": 512,
+    "height": 440,
+    "alphaBounds": [
+      0,
+      0,
+      512,
+      440
+    ]
+  },
+  {
+    "id": 3,
+    "slug": "stamp_03_tiny_crown",
+    "title": "ちいさなクラウン",
+    "src": "/kids/stamps/stamp_03_tiny_crown.png",
+    "width": 512,
+    "height": 420,
+    "alphaBounds": [
+      0,
+      0,
+      512,
+      420
+    ]
+  },
+  {
+    "id": 4,
+    "slug": "stamp_04_strawberry_cupcake",
+    "title": "いちごカップケーキ",
+    "src": "/kids/stamps/stamp_04_strawberry_cupcake.png",
+    "width": 431,
+    "height": 512,
+    "alphaBounds": [
+      0,
+      0,
+      431,
+      512
+    ]
+  },
+  {
+    "id": 5,
+    "slug": "stamp_05_bunny_face",
+    "title": "うさぎフェイス",
+    "src": "/kids/stamps/stamp_05_bunny_face.png",
+    "width": 408,
+    "height": 512,
+    "alphaBounds": [
+      0,
+      0,
+      408,
+      512
+    ]
+  },
+  {
+    "id": 6,
+    "slug": "stamp_06_crown_fish",
+    "title": "おうかんフィッシュ",
+    "src": "/kids/stamps/stamp_06_crown_fish.png",
+    "width": 512,
+    "height": 393,
+    "alphaBounds": [
+      0,
+      0,
+      512,
+      393
+    ]
+  },
+  {
+    "id": 7,
+    "slug": "stamp_07_rainbow_train",
+    "title": "にじいろトレイン",
+    "src": "/kids/stamps/stamp_07_rainbow_train.png",
+    "width": 512,
+    "height": 447,
+    "alphaBounds": [
+      0,
+      0,
+      512,
+      447
+    ]
+  },
+  {
+    "id": 8,
+    "slug": "stamp_08_smile_planet",
+    "title": "スマイルプラネット",
+    "src": "/kids/stamps/stamp_08_smile_planet.png",
+    "width": 512,
+    "height": 396,
+    "alphaBounds": [
+      0,
+      0,
+      512,
+      396
+    ]
+  },
+  {
+    "id": 9,
+    "slug": "stamp_09_music_drum",
+    "title": "ミュージックドラム",
+    "src": "/kids/stamps/stamp_09_music_drum.png",
+    "width": 512,
+    "height": 480,
+    "alphaBounds": [
+      0,
+      0,
+      512,
+      480
+    ]
+  },
+  {
+    "id": 10,
+    "slug": "stamp_10_rainbow_umbrella",
+    "title": "にじいろアンブレラ",
+    "src": "/kids/stamps/stamp_10_rainbow_umbrella.png",
+    "width": 512,
+    "height": 472,
+    "alphaBounds": [
+      0,
+      0,
+      512,
+      472
+    ]
+  },
+  {
+    "id": 11,
+    "slug": "stamp_11_teddy_heart",
+    "title": "ハートテディ",
+    "src": "/kids/stamps/stamp_11_teddy_heart.png",
+    "width": 438,
+    "height": 512,
+    "alphaBounds": [
+      0,
+      0,
+      438,
+      512
+    ]
+  },
+  {
+    "id": 12,
+    "slug": "stamp_12_tiny_dragon",
+    "title": "ちびドラゴン",
+    "src": "/kids/stamps/stamp_12_tiny_dragon.png",
+    "width": 480,
+    "height": 512,
+    "alphaBounds": [
+      0,
+      0,
+      480,
+      512
+    ]
+  },
+  {
+    "id": 13,
+    "slug": "stamp_13_flower_pinwheel",
+    "title": "おはなかざぐるま",
+    "src": "/kids/stamps/stamp_13_flower_pinwheel.png",
+    "width": 395,
+    "height": 512,
+    "alphaBounds": [
+      0,
+      0,
+      395,
+      512
+    ]
+  },
+  {
+    "id": 14,
+    "slug": "stamp_14_winged_ball",
+    "title": "つばさボール",
+    "src": "/kids/stamps/stamp_14_winged_ball.png",
+    "width": 512,
+    "height": 336,
+    "alphaBounds": [
+      0,
+      0,
+      512,
+      336
+    ]
+  },
+  {
+    "id": 15,
+    "slug": "stamp_15_rainbow_rocket",
+    "title": "にじいろロケット",
+    "src": "/kids/stamps/stamp_15_rainbow_rocket.png",
+    "width": 401,
+    "height": 512,
+    "alphaBounds": [
+      0,
+      0,
+      401,
+      512
+    ]
+  },
+  {
+    "id": 16,
+    "slug": "stamp_16_treasure_chest",
+    "title": "たからばこ",
+    "src": "/kids/stamps/stamp_16_treasure_chest.png",
+    "width": 512,
+    "height": 440,
+    "alphaBounds": [
+      0,
+      0,
+      512,
+      440
+    ]
+  },
+  {
+    "id": 17,
+    "slug": "stamp_17_ice_cream",
+    "title": "アイスクリーム",
+    "src": "/kids/stamps/stamp_17_ice_cream.png",
+    "width": 261,
+    "height": 512,
+    "alphaBounds": [
+      0,
+      0,
+      261,
+      512
+    ]
+  },
+  {
+    "id": 18,
+    "slug": "stamp_18_rainbow_butterfly",
+    "title": "にじいろバタフライ",
+    "src": "/kids/stamps/stamp_18_rainbow_butterfly.png",
+    "width": 512,
+    "height": 371,
+    "alphaBounds": [
+      0,
+      0,
+      512,
+      371
+    ]
+  },
+  {
+    "id": 19,
+    "slug": "stamp_19_magic_wand",
+    "title": "まほうのステッキ",
+    "src": "/kids/stamps/stamp_19_magic_wand.png",
+    "width": 396,
+    "height": 512,
+    "alphaBounds": [
+      0,
+      0,
+      396,
+      512
+    ]
+  },
+  {
+    "id": 20,
+    "slug": "stamp_20_gold_medal",
+    "title": "きんメダル",
+    "src": "/kids/stamps/stamp_20_gold_medal.png",
+    "width": 444,
+    "height": 512,
+    "alphaBounds": [
+      0,
+      0,
+      444,
+      512
+    ]
+  },
+  {
+    "id": 21,
+    "slug": "stamp_21_rainbow_gem",
+    "title": "にじいろジュエル",
+    "src": "/kids/stamps/stamp_21_rainbow_gem.png",
+    "width": 503,
+    "height": 512,
+    "alphaBounds": [
+      0,
+      0,
+      503,
+      512
+    ]
+  },
+  {
+    "id": 22,
+    "slug": "stamp_22_castle_tower",
+    "title": "おしろタワー",
+    "src": "/kids/stamps/stamp_22_castle_tower.png",
+    "width": 400,
+    "height": 512,
+    "alphaBounds": [
+      0,
+      0,
+      400,
+      512
+    ]
+  },
+  {
+    "id": 23,
+    "slug": "stamp_23_chocolate_donut",
+    "title": "チョコドーナツ",
+    "src": "/kids/stamps/stamp_23_chocolate_donut.png",
+    "width": 504,
+    "height": 512,
+    "alphaBounds": [
+      0,
+      0,
+      504,
+      512
+    ]
+  },
+  {
+    "id": 24,
+    "slug": "stamp_24_toy_car",
+    "title": "おもちゃカー",
+    "src": "/kids/stamps/stamp_24_toy_car.png",
+    "width": 512,
+    "height": 415,
+    "alphaBounds": [
+      0,
+      0,
+      512,
+      415
+    ]
+  },
+  {
+    "id": 25,
+    "slug": "stamp_25_pearl_shell",
+    "title": "パールシェル",
+    "src": "/kids/stamps/stamp_25_pearl_shell.png",
+    "width": 470,
+    "height": 512,
+    "alphaBounds": [
+      0,
+      0,
+      470,
+      512
+    ]
+  },
+  {
+    "id": 26,
+    "slug": "stamp_26_red_apple",
+    "title": "りんごスマイル",
+    "src": "/kids/stamps/stamp_26_red_apple.png",
+    "width": 488,
+    "height": 512,
+    "alphaBounds": [
+      0,
+      0,
+      488,
+      512
+    ]
+  },
+  {
+    "id": 27,
+    "slug": "stamp_27_fluffy_cloud",
+    "title": "ふわふわクラウド",
+    "src": "/kids/stamps/stamp_27_fluffy_cloud.png",
+    "width": 512,
+    "height": 409,
+    "alphaBounds": [
+      0,
+      0,
+      512,
+      409
+    ]
+  },
+  {
+    "id": 28,
+    "slug": "stamp_28_crescent_moon",
+    "title": "おつきさま",
+    "src": "/kids/stamps/stamp_28_crescent_moon.png",
+    "width": 479,
+    "height": 512,
+    "alphaBounds": [
+      0,
+      0,
+      479,
+      512
+    ]
+  },
+  {
+    "id": 29,
+    "slug": "stamp_29_lucky_clover",
+    "title": "ラッキークローバー",
+    "src": "/kids/stamps/stamp_29_lucky_clover.png",
+    "width": 477,
+    "height": 512,
+    "alphaBounds": [
+      0,
+      0,
+      477,
+      512
+    ]
+  },
+  {
+    "id": 30,
+    "slug": "stamp_30_dinosaur_egg",
+    "title": "きょうりゅうエッグ",
+    "src": "/kids/stamps/stamp_30_dinosaur_egg.png",
+    "width": 391,
+    "height": 512,
+    "alphaBounds": [
+      0,
+      0,
+      391,
+      512
+    ]
+  }
+]

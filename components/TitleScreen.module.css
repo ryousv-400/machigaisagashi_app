@@ -1,0 +1,368 @@
+.container {
+  flex: 1;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 20px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  position: relative;
+  z-index: 2;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.titleWrap {
+  position: relative;
+  margin-top: 4vh;
+  padding: 12px 24px;
+  animation: bounce-soft 3s ease-in-out infinite;
+}
+
+.title {
+  font-size: clamp(1.9rem, 9vw, 3.2rem);
+  margin: 0;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  /* rainbow-text は color: transparent なので text-shadow ではなく
+     filter: drop-shadow でレインボーの文字自体に影を落とす */
+  filter:
+    drop-shadow(3px 3px 0 #fff)
+    drop-shadow(4px 4px 0 rgba(255, 111, 168, 0.22));
+}
+
+.floaters {
+  position: absolute;
+  inset: -40px 0 -40px 0;
+  pointer-events: none;
+}
+
+.floater {
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  top: 0;
+  animation: floatFluffy 3.2s ease-in-out infinite;
+  opacity: 0.9;
+}
+
+@keyframes floatFluffy {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(8deg); }
+}
+
+.subtitle {
+  font-size: clamp(1.1rem, 4.5vw, 1.5rem);
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+  background: #fff;
+  padding: 10px 24px;
+  border-radius: 999px;
+  box-shadow: var(--shadow-soft);
+  border: 3px dashed var(--pink-300);
+}
+
+.preview {
+  width: min(78vw, 360px);
+  aspect-ratio: 1 / 0.72;
+  position: relative;
+  margin: -2px 0 2px;
+  flex-shrink: 0;
+}
+
+.previewScene {
+  position: absolute;
+  inset: 0;
+  width: 76%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 24px;
+  border: 5px solid #fff;
+  box-shadow: var(--shadow-soft);
+}
+
+.previewMascot {
+  position: absolute;
+  right: 0;
+  bottom: -5%;
+  width: 38%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 12px rgba(79, 54, 95, 0.22));
+  animation: wobble-soft 2.6s ease-in-out infinite;
+}
+
+.modes {
+  display: flex;
+  gap: 18px;
+  width: 100%;
+  justify-content: center;
+  padding: 0 8px;
+}
+
+.modeBtn {
+  flex: 1;
+  max-width: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 22px 12px 18px;
+  border: none;
+  border-radius: 32px;
+  color: #fff;
+  font-weight: 900;
+  box-shadow:
+    0 10px 0 rgba(0, 0, 0, 0.12),
+    0 16px 28px rgba(0, 0, 0, 0.14);
+  transition: transform 0.08s, box-shadow 0.08s;
+  position: relative;
+  overflow: hidden;
+  min-height: 200px;
+}
+
+.modeBtn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), transparent 60%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.modeBtn:active {
+  transform: translateY(8px);
+  box-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.12),
+    0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.modeTen {
+  background: linear-gradient(160deg, #ffb3d1, #ff6fa8);
+}
+
+.modeThirty {
+  background: linear-gradient(160deg, #d4b3ff, #8fd3ff);
+}
+
+.modeIcon {
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  animation: wobble-soft 2s ease-in-out infinite;
+}
+
+.modeNumber {
+  font-size: 2.6rem;
+  line-height: 1;
+  letter-spacing: 0;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+}
+
+.modeLabel {
+  font-size: 1.2rem;
+  letter-spacing: 0;
+}
+
+.modeHint {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--text);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.footer {
+  padding-bottom: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 12px 12px 10px;
+  }
+
+  .titleWrap {
+    margin-top: 2vh;
+  }
+
+  .preview {
+    width: min(82vw, 320px);
+  }
+
+  .modes {
+    gap: 10px;
+  }
+
+  .modeBtn {
+    padding: 16px 8px;
+    min-height: 170px;
+    border-radius: 24px;
+  }
+
+  .modeIcon {
+    width: 52px;
+    height: 52px;
+  }
+
+  .modeNumber {
+    font-size: 2rem;
+  }
+
+  .modeLabel {
+    font-size: 1rem;
+  }
+
+  .modeHint {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+  }
+}
+
+/* ============ 追加機能（お名前・累計・じゆうモード・スタンプ帳） ============ */
+
+.nameChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 3px solid var(--cream-300);
+  border-radius: 999px;
+  padding: 6px 18px 6px 8px;
+  font-weight: 800;
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.06s, box-shadow 0.06s;
+}
+
+.nameChip:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.nameChipIcon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.nameChipText strong {
+  color: #ff6fa8;
+  font-weight: 900;
+  font-size: 1.1rem;
+  margin-right: 2px;
+}
+
+.statsRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.statPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-weight: 800;
+  color: var(--text);
+  font-size: 0.9rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.statIcon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.statPill strong {
+  color: #ff6fa8;
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.extraRow {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+  padding: 4px 8px 0;
+}
+
+.extraBtn {
+  flex: 1;
+  max-width: 220px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 14px;
+  font-weight: 900;
+  color: #fff;
+  font-size: 1rem;
+  letter-spacing: 0;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.12);
+  transition: transform 0.06s, box-shadow 0.06s;
+}
+
+.extraBtn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.extraIcon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+.extraFree {
+  background: linear-gradient(135deg, #8fe3b3, #3ccf7a);
+}
+
+.extraStamp {
+  background: linear-gradient(135deg, #ffcf3a, #ff9a3c);
+}
+
+@media (max-width: 480px) {
+  .extraBtn {
+    font-size: 0.88rem;
+    padding: 10px 10px;
+  }
+  .extraIcon {
+    width: 22px;
+    height: 22px;
+  }
+  .nameChip {
+    font-size: 0.9rem;
+  }
+  .nameChipIcon {
+    width: 26px;
+    height: 26px;
+  }
+  .statPill {
+    font-size: 0.8rem;
+  }
+}

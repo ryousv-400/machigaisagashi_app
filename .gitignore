@@ -13,5 +13,23 @@ venv/
 .vscode/
 .idea/
 
-# Node
+# Node / Next.js
 node_modules/
+.next/
+out/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+
+# Next generated
+next-env.d.ts
+
+# Editor / CLI local state
+.claude/
+
+# ローカルの旧バージョン退避先（リポジトリには含めない）
+_archive/
+
+# Codex 生成の元素材（サイズが大きいため別管理。public/kids/ の合成済み画像だけ
+# コミットする。再生成手順は tools/build_kids_assets.py）
+assets/kids/
