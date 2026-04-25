@@ -8,7 +8,7 @@ const args = process.argv.slice(2);
 
 function usage() {
   console.error(
-    "Usage: node scripts/find_diffs.mjs <left.png> <right.png> [--tolerance 2] [--min-pixels 16] [--json]",
+    "Usage: node scripts/find_diffs.mjs <left.png> <right.png> [--tolerance 2] [--min-pixels 16] [--merge-distance 32] [--json]",
   );
   process.exit(1);
 }
@@ -23,6 +23,11 @@ const tolerance =
 const minPixelsIndex = args.indexOf("--min-pixels");
 const minPixels =
   minPixelsIndex >= 0 && args[minPixelsIndex + 1] ? Number(args[minPixelsIndex + 1]) : 16;
+const mergeDistanceIndex = args.indexOf("--merge-distance");
+const mergeDistance =
+  mergeDistanceIndex >= 0 && args[mergeDistanceIndex + 1]
+    ? Number(args[mergeDistanceIndex + 1])
+    : 32;
 const json = args.includes("--json");
 
 if (!Number.isFinite(tolerance) || tolerance < 0) {
@@ -32,6 +37,11 @@ if (!Number.isFinite(tolerance) || tolerance < 0) {
 
 if (!Number.isFinite(minPixels) || minPixels < 1) {
   console.error("Invalid --min-pixels value.");
+  process.exit(1);
+}
+
+if (!Number.isFinite(mergeDistance) || mergeDistance < 0) {
+  console.error("Invalid --merge-distance value.");
   process.exit(1);
 }
 
@@ -137,9 +147,58 @@ for (let i = 0; i < total; i += 1) {
   });
 }
 
+function gapBetween(a, b) {
+  const gapX = Math.max(0, Math.max(a.x - (b.x + b.w), b.x - (a.x + a.w)));
+  const gapY = Math.max(0, Math.max(a.y - (b.y + b.h), b.y - (a.y + a.h)));
+  return Math.hypot(gapX, gapY);
+}
+
+function mergePair(a, b) {
+  const x = Math.min(a.x, b.x);
+  const y = Math.min(a.y, b.y);
+  const maxX = Math.max(a.x + a.w - 1, b.x + b.w - 1);
+  const maxY = Math.max(a.y + a.h - 1, b.y + b.h - 1);
+  const w = maxX - x + 1;
+  const h = maxY - y + 1;
+  return {
+    pixels: a.pixels + b.pixels,
+    x,
+    y,
+    w,
+    h,
+    xPct: Math.round(((x + w / 2) / width) * 1000) / 10,
+    yPct: Math.round(((y + h / 2) / height) * 1000) / 10,
+    wPct: Math.round((w / width) * 1000) / 10,
+    hPct: Math.round((h / height) * 1000) / 10,
+  };
+}
+
+function mergeNearby(items) {
+  const merged = [...items];
+  let changed = true;
+  while (changed) {
+    changed = false;
+    outer: for (let i = 0; i < merged.length; i += 1) {
+      for (let j = i + 1; j < merged.length; j += 1) {
+        const hasSmallFragment = Math.min(merged[i].pixels, merged[j].pixels) < 1000;
+        if (hasSmallFragment && gapBetween(merged[i], merged[j]) <= mergeDistance) {
+          const next = mergePair(merged[i], merged[j]);
+          merged.splice(j, 1);
+          merged.splice(i, 1, next);
+          changed = true;
+          break outer;
+        }
+      }
+    }
+  }
+  return merged;
+}
+
 const rawClusterCount = clusters.length;
 const ignoredSmallClusters = clusters.filter((cluster) => cluster.pixels < minPixels).length;
-const visibleClusters = clusters
+const visibleClusters = mergeNearby(
+  clusters.filter((cluster) => cluster.pixels >= minPixels),
+)
   .filter((cluster) => cluster.pixels >= minPixels)
   .sort((a, b) => b.pixels - a.pixels);
 
@@ -150,6 +209,7 @@ const result = {
   height,
   tolerance,
   minPixels,
+  mergeDistance,
   changedPixels,
   changedPct: Math.round((changedPixels / total) * 10000) / 100,
   rawClusterCount,
