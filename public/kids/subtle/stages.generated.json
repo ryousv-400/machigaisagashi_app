@@ -1,1 +1,136 @@
-[]
+[
+  {
+    "level": 101,
+    "tier": "subtle",
+    "title": "まほうの もり",
+    "readAloud": "まほうの もり！ ちっちゃな ちがいを みつけてね！",
+    "leftImg": "/kids/subtle/stage01_left.png",
+    "rightImg": "/kids/subtle/stage01_right.png",
+    "mistakes": [
+      {
+        "id": 1,
+        "label": "ふえた きのこ",
+        "x": 25,
+        "y": 72,
+        "w": 8,
+        "h": 8
+      },
+      {
+        "id": 2,
+        "label": "はっぱの いろ",
+        "x": 15,
+        "y": 26,
+        "w": 16,
+        "h": 16
+      },
+      {
+        "id": 3,
+        "label": "へった ことり",
+        "x": 67,
+        "y": 23,
+        "w": 8,
+        "h": 8
+      },
+      {
+        "id": 4,
+        "label": "しっぽの かたち",
+        "x": 74,
+        "y": 69,
+        "w": 10,
+        "h": 8
+      }
+    ]
+  },
+  {
+    "level": 102,
+    "tier": "subtle",
+    "title": "パンやさんの あさ",
+    "readAloud": "パンやさんの あさ！ ちっちゃな ちがいを みつけてね！",
+    "leftImg": "/kids/subtle/stage02_left.png",
+    "rightImg": "/kids/subtle/stage02_right.png",
+    "mistakes": [
+      {
+        "id": 1,
+        "label": "ふえた クロワッサン",
+        "x": 46,
+        "y": 35,
+        "w": 8,
+        "h": 8
+      },
+      {
+        "id": 2,
+        "label": "かんばんの いろ",
+        "x": 74,
+        "y": 30,
+        "w": 8,
+        "h": 8
+      },
+      {
+        "id": 3,
+        "label": "うごいた うえきばち",
+        "x": 27,
+        "y": 73,
+        "w": 10,
+        "h": 8
+      },
+      {
+        "id": 4,
+        "label": "ふえた ことり",
+        "x": 68,
+        "y": 21,
+        "w": 8,
+        "h": 8
+      }
+    ]
+  },
+  {
+    "level": 103,
+    "tier": "subtle",
+    "title": "うみの ちかの まち",
+    "readAloud": "うみの ちかの まち！ ちっちゃな ちがいを みつけてね！",
+    "leftImg": "/kids/subtle/stage03_left.png",
+    "rightImg": "/kids/subtle/stage03_right.png",
+    "mistakes": [
+      {
+        "id": 1,
+        "label": "へった さかな",
+        "x": 69,
+        "y": 42,
+        "w": 8,
+        "h": 8
+      },
+      {
+        "id": 2,
+        "label": "やねの いろ",
+        "x": 48,
+        "y": 39,
+        "w": 10,
+        "h": 8
+      },
+      {
+        "id": 3,
+        "label": "たこの あし",
+        "x": 26,
+        "y": 69,
+        "w": 8,
+        "h": 8
+      },
+      {
+        "id": 4,
+        "label": "ふえた あわ",
+        "x": 80,
+        "y": 63,
+        "w": 8,
+        "h": 8
+      },
+      {
+        "id": 5,
+        "label": "うごいた かいそう",
+        "x": 54,
+        "y": 76,
+        "w": 9,
+        "h": 9
+      }
+    ]
+  }
+]

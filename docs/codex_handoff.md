@@ -5,86 +5,85 @@
 
 ---
 
+## 現状（2026-04-25 時点）
+
+- S01〜S03（level 101〜103）は完成済み
+  - `public/kids/subtle/stage0{1,2,3}_{left,right}.png`
+  - `public/kids/subtle/stages.generated.json` に 3 件登録済み
+  - `scripts/generate_subtle_stages.mjs` で SVG + sharp ベースのプログラム描画
+  - `scripts/find_diffs.mjs` で差分検証
+
+次の発注は **残り 7 ステージ（S04〜S10、level 104〜110）** の連続生成。
+
+---
+
 ## ⏯ 依頼文（コピペ用）
 
 ```
 @docs/asset_spec.md セクション 1B「リアル差分版（むずかしいモード専用ステージ）」
-@docs/codex_prompts.md セクション 1B のプロンプトを参照してください。
+@scripts/generate_subtle_stages.mjs 既存の生成スクリプト（S01〜S03 実装済）
 
 【依頼】
-リアル差分版の試作ステージを 1〜3 ステージ生成してください。
+リアル差分版の残り 7 ステージ（S04〜S10、level 104〜110）を 連続して 生成してください。
+途中で確認は不要です。完成したらまとめて報告してください。
 
-## フェーズ 1（まず S01 のみ作って品質確認）
-- 仕様: docs/asset_spec.md セクション 1B 「試作 3 ステージ」の S01「まほうの もり」
-- ベース画像 (`stage01_left.png`) を `gpt-image-1` で 1024x1024 PNG として生成
-- 4 箇所の差分を `images.edit` (inpainting) で順に重ねて `stage01_right.png` を作成
-- メタデータ JSON を `public/kids/subtle/stages.generated.json` に出力
-  - level は 101 から振る（通常ステージと衝突回避）
-  - tier: "subtle" を必ず付与
-  - 各 mistake の w/h は 6% 以上、5歳児がタップしやすいよう周辺を含めて広めに
+## 生成対象
+- docs/asset_spec.md セクション 1B「全 10 ステージのテーマと差分指示」の
+  S04〜S10（level 104〜110）すべて
+- 各ステージにつき以下を生成:
+  - `public/kids/subtle/stage{NN}_left.png` （ベース、1024x1024 PNG）
+  - `public/kids/subtle/stage{NN}_right.png` （差分適用後、1024x1024 PNG）
+- `public/kids/subtle/stages.generated.json` に 7 件 追記（既存 3 件は維持）
 
-## 仕様の核
-- 画風: 水彩タッチの絵本イラスト（ユーザー提示の参考画像レベル）
+## 進め方（既存実装の踏襲を推奨）
+- S01〜S03 は `scripts/generate_subtle_stages.mjs` で SVG プログラム描画 →
+  sharp で PNG 化する手法を採用済み。
+  S04〜S10 も 同じスクリプトを拡張 して同手法で生成するのが自然。
+- 各ステージ用の `renderXxxx(...)` 関数を SVG で書き起こし、
+  左右で差分の出る要素だけ条件分岐させる作りでよい。
+- JSON の追記は既存配列の末尾に push、`level` は 104〜110 を割り当てる。
+- 別アプローチ（OpenAI gpt-image-1 + inpainting）を採用したい場合は、
+  生成後の左右ピクセル一致が崩れない手段を取ること。
+
+## メタデータ仕様
+- `level`: 104〜110
+- `tier: "subtle"` 必須
+- 各 mistake の w/h は 6% 以上、5歳児がタップしやすいよう周辺込みで広めに
+- `id` は 1 から連番
+- `label` は子供向けひらがな短文（既存 S01〜S03 のスタイル踏襲）
+- `readAloud` は「{タイトル}！ ちっちゃな ちがいを みつけてね！」形式
+
+## 仕様の核（必読）
+- 画風: 既存 S01〜S03 と統一感を保つ（同じ絵本シリーズの別シーンに見える）
 - 差分は「ぱっと見では気づかないが、よく見ると分かる」程度の微妙さ
-- 左右画像は差分以外ピクセル一致（必ず inpainting で生成、同プロンプト2回流しはNG）
-- ホットスポット最小 6% 四方、互いに 12% 以上離す
+- 左右画像は差分以外ピクセル一致（プログラム描画なら本質的に保証される）
+- ホットスポット最小 6% 四方、互いに 12% 以上離す、画面端 5% 以内は避ける
 
-## 検証
-- `scripts/find_diffs.mjs` を実行し、差分が 3〜5 クラスタに収まり、
+## 検証（生成後に各ステージで実施）
+- `node scripts/find_diffs.mjs` を実行し、差分が 3〜5 クラスタに収まり、
   それ以外がピクセル一致（許容 ±2 階調）であることを確認
 - メタデータの座標が実際の差分と一致しているか目視確認
 
-## フェーズ 2（S01 が OK なら S02・S03）
-- 同じワークフローで S02「パンやさんの あさ」、S03「うみの ちかの まち」
-- 仕様は asset_spec.md セクション 1B「試作 3 ステージ」を参照
-
-## フェーズ 3（試作の合格ラインを超えたら）
-- 残り 7 ステージ（合計 10 ステージ）を順次生成
-- テーマは asset_spec.md セクション 2 の通常版から相性の良いものを選定
-  （森・海・パン屋・部屋・公園・夜空・乗り物 など、密度が出しやすい題材を優先）
-
-## アプリ側の準備
-- `lib/stages.ts` は `public/kids/subtle/stages.generated.json` を自動で読み込む
-- subtle ステージが入っている時のみ、むずかしいモードで使われる
-- 0 件のときは従来どおり通常ステージをシャッフル
-- `tier: "subtle"` のステージはホットスポット倍率を 1.0 で表示（縮小しない）
-
-完了したら、生成ステージ数・所要時間・気になった点を簡単にまとめて報告ください。
+## 報告事項
+全 7 ステージの生成が完了したら、以下を簡単にまとめて報告ください:
+- 生成にかかった所要時間
+- 各ステージの差分検出クラスタ数（find_diffs.mjs の出力サマリ）
+- 既存 S01〜S03 と画風の統一感が取れているかの自己評価
+- 特に難航したステージや、品質が他と比べて落ちる懸念のあるステージ
 ```
 
 ---
 
 ## 補足: アプリ側のフック
 
-Codex が `public/kids/subtle/stages.generated.json` に項目を追加すれば、
-アプリ側はビルドし直すだけで自動的に subtle ステージを認識します。
+`public/kids/subtle/stages.generated.json` に項目が増えれば、アプリ側は
+ビルドし直すだけで自動的に subtle ステージを認識します。
 
-- `lib/stages.ts` が両ファイルを結合
-- `lib/modes.ts` `buildLevelSequence` が `STAGES_SUBTLE.length > 0` で分岐
-- 「むずかしい」を選んでスタートすると subtle ステージが出る
+- `lib/stages.ts` が両ファイル（normal + subtle）を結合
+- `lib/modes.ts` `buildLevelSequence` が `STAGES_SUBTLE.length > 0` で分岐し、
+  「むずかしい」モードでは subtle ステージを優先採用
+- `tier: "subtle"` のステージはホットスポット倍率を 1.0 で表示（縮小しない）
 
-## 検証用データ（Codex 生成テスト前にローカル動作確認したい場合）
-
-`public/kids/subtle/stages.generated.json` に通常ステージのコピーを暫定で
-入れて挙動確認することも可能。例:
-
-```json
-[
-  {
-    "level": 101,
-    "tier": "subtle",
-    "title": "テスト サブトル ステージ",
-    "readAloud": "テスト",
-    "leftImg": "/kids/kids_stage1_left.png",
-    "rightImg": "/kids/kids_stage1_right.png",
-    "mistakes": [
-      { "id": 1, "x": 30, "y": 40, "w": 12, "h": 12 },
-      { "id": 2, "x": 60, "y": 50, "w": 12, "h": 12 },
-      { "id": 3, "x": 50, "y": 75, "w": 12, "h": 12 }
-    ]
-  }
-]
-```
-
-ただし通常ステージそのままでは差分は通常版と同じなので、Codex 本生成前の
-配線テスト用のみ。
+10 ステージそろえば、`buildLevelSequence` のロジックにより
+「10もん モード × むずかしい」ですべてのリアル差分版を体験できる構成になります
+（`Math.min(targetCount, subtleLevels.length)`）。
