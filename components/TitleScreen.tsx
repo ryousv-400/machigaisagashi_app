@@ -2,11 +2,16 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useGameStore } from "@/lib/store";
+import { useGameStore, getCrownTotals } from "@/lib/store";
 import { speak, primeVoices } from "@/lib/speech";
 import { playSound } from "@/lib/sound";
-import type { GameMode } from "@/lib/modes";
-import { MODE_READ_ALOUD } from "@/lib/modes";
+import type { GameMode, Difficulty } from "@/lib/modes";
+import {
+  MODE_READ_ALOUD,
+  DIFFICULTY_LABELS,
+  DIFFICULTY_HINT_LABELS,
+  DIFFICULTY_READ_ALOUD,
+} from "@/lib/modes";
 import SoundToggle from "./SoundToggle";
 import styles from "./TitleScreen.module.css";
 
@@ -16,6 +21,10 @@ export default function TitleScreen() {
   const playerName = useGameStore((s) => s.playerName);
   const totalFoundAllTime = useGameStore((s) => s.totalFoundAllTime);
   const ownedStickers = useGameStore((s) => s.ownedStickers);
+  const preferredDifficulty = useGameStore((s) => s.preferredDifficulty);
+  const setPreferredDifficulty = useGameStore((s) => s.setPreferredDifficulty);
+  const stageCrowns = useGameStore((s) => s.stageCrowns);
+  const crownTotals = getCrownTotals(stageCrowns);
 
   useEffect(() => {
     primeVoices();
@@ -32,13 +41,19 @@ export default function TitleScreen() {
   const start = (mode: GameMode) => {
     playSound("tap");
     speak(MODE_READ_ALOUD[mode], { rate: 1.05 });
-    startGame(mode);
+    startGame(mode, preferredDifficulty);
     router.push("/play");
   };
 
   const goto = (path: string) => {
     playSound("tap");
     router.push(path);
+  };
+
+  const pickDifficulty = (d: Difficulty) => {
+    playSound("tap");
+    setPreferredDifficulty(d);
+    speak(DIFFICULTY_READ_ALOUD[d], { rate: 1.05 });
   };
 
   return (
@@ -86,6 +101,33 @@ export default function TitleScreen() {
             シール <strong>{ownedStickers.length}</strong>まい
           </span>
         </div>
+        <div className={styles.statPill}>
+          <span aria-hidden="true">👑</span>
+          <span>
+            おうかん <strong>{crownTotals.total}</strong>こ
+          </span>
+        </div>
+      </div>
+
+      <p className={styles.subtitle}>むずかしさを えらんでね</p>
+
+      <div className={styles.difficultyRow} role="radiogroup" aria-label="むずかしさ">
+        {(["easy", "normal", "hard"] as Difficulty[]).map((d) => {
+          const active = preferredDifficulty === d;
+          return (
+            <button
+              key={d}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={() => pickDifficulty(d)}
+              className={`${styles.diffBtn} ${styles[`diff-${d}`]} ${active ? styles.diffActive : ""}`}
+            >
+              <span className={styles.diffLabel}>{DIFFICULTY_LABELS[d]}</span>
+              <span className={styles.diffSub}>{DIFFICULTY_HINT_LABELS[d]}</span>
+            </button>
+          );
+        })}
       </div>
 
       <p className={styles.subtitle}>どっちで あそぶ？</p>

@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getStage } from "@/lib/stages";
-import { useGameStore, getCurrentLevel } from "@/lib/store";
+import { useGameStore, getCurrentLevel, isCurrentStageMirrored, type StageCrowns } from "@/lib/store";
 import { stopSpeech, primeVoices } from "@/lib/speech";
 import { playSound } from "@/lib/sound";
+import { DIFFICULTY_HOTSPOT_SCALE } from "@/lib/modes";
 import Panel from "./Panel";
 import Mascot, { type MascotMood } from "./Mascot";
 import StarProgress from "./StarProgress";
@@ -35,13 +36,19 @@ export default function GameBoard() {
   const router = useRouter();
   const progress = useGameStore((s) => s.progress);
   const markFound = useGameStore((s) => s.markFound);
+  const markHintUsed = useGameStore((s) => s.markHintUsed);
+  const markMiss = useGameStore((s) => s.markMiss);
   const advanceStage = useGameStore((s) => s.advanceStage);
   const reset = useGameStore((s) => s.reset);
   const addClearedLevel = useGameStore((s) => s.addClearedLevel);
+  const awardCrowns = useGameStore((s) => s.awardCrowns);
   const playerName = useGameStore((s) => s.playerName);
   const drawAndAddSticker = useGameStore((s) => s.drawAndAddSticker);
 
   const level = getCurrentLevel(progress);
+  const difficulty = progress?.difficulty ?? "normal";
+  const hotspotScale = DIFFICULTY_HOTSPOT_SCALE[difficulty];
+  const mirrored = isCurrentStageMirrored(progress);
 
   // progress が null（直接 URL アクセスされたとか）のときはタイトルに戻す
   useEffect(() => {
@@ -60,6 +67,7 @@ export default function GameBoard() {
   const [hintId, setHintId] = useState<number | null>(null);
   const [isClear, setIsClear] = useState(false);
   const [stickerResult, setStickerResult] = useState<DrawResult | null>(null);
+  const [awardedCrowns, setAwardedCrowns] = useState<StageCrowns | null>(null);
   const [effects, setEffects] = useState<{ id: number; type: EffectType; x: number; y: number }[]>([]);
   const effectIdRef = useRef(0);
 
@@ -70,6 +78,7 @@ export default function GameBoard() {
     setHintId(null);
     setIsClear(false);
     setStickerResult(null);
+    setAwardedCrowns(null);
     setMascotMood("idle");
     const intro = playerName
       ? `${playerName}ちゃん、${stage.readAloud}`
@@ -128,13 +137,22 @@ export default function GameBoard() {
           const clearMsg = `${who}ぜんぶ みつけたね！`;
           setMascotMessage(clearMsg);
           addClearedLevel(stage.level);
+          // 王冠の判定（progress スナップショット）
+          const p = useGameStore.getState().progress;
+          const crowns: StageCrowns = {
+            cleared: true,
+            hintless: !(p?.hintUsedThisStage ?? true),
+            noMiss: (p?.missCountThisStage ?? 1) === 0,
+          };
+          awardCrowns(stage.level, difficulty, crowns);
+          setAwardedCrowns(crowns);
           // シール抽選 → Reveal 演出を先に表示、閉じたら ClearScreen
           const result = drawAndAddSticker();
           setStickerResult(result);
         }, 900);
       }
     },
-    [stage, isClear, foundIds, markFound, addClearedLevel, playerName, drawAndAddSticker],
+    [stage, isClear, foundIds, markFound, addClearedLevel, playerName, drawAndAddSticker, awardCrowns, difficulty],
   );
 
   // 外れ場所を押した
@@ -142,6 +160,7 @@ export default function GameBoard() {
     (ev: React.PointerEvent) => {
       if (!stage || isClear) return;
       playSound("wrong");
+      markMiss();
       const msg = MISS_MESSAGES[Math.floor(Math.random() * MISS_MESSAGES.length)];
       setMascotMood("sad");
       setMascotMessage(msg);
@@ -153,7 +172,7 @@ export default function GameBoard() {
       // 少ししたら idle に戻す
       setTimeout(() => setMascotMood("idle"), 1200);
     },
-    [stage, isClear],
+    [stage, isClear, markMiss],
   );
 
   const handleHint = useCallback(() => {
@@ -168,7 +187,8 @@ export default function GameBoard() {
     setMascotMood("hint");
     setMascotMessage(msg);
     playSound("sparkle");
-  }, [stage, isClear, foundIds]);
+    markHintUsed();
+  }, [stage, isClear, foundIds, markHintUsed]);
 
   const handleNext = useCallback(() => {
     if (!progress) return;
@@ -200,8 +220,22 @@ export default function GameBoard() {
   const stageIndex = progress.currentIndex + 1;
   const stageTotal = progress.levels.length;
 
+  // 左右パネルの組み合わせ（リミックス時は入れ替え）
+  const panelOrder = mirrored
+    ? [
+        { img: stage.rightImg, label: "おてほん", color: "left" as const },
+        { img: stage.leftImg, label: "もんだい", color: "right" as const },
+      ]
+    : [
+        { img: stage.leftImg, label: "おてほん", color: "left" as const },
+        { img: stage.rightImg, label: "もんだい", color: "right" as const },
+      ];
+
   return (
-    <div className={styles.container}>
+    <div
+      className={styles.container}
+      style={{ ["--hotspot-scale" as string]: hotspotScale }}
+    >
       <header className={styles.header}>
         <div className={styles.leftHeader}>
           <div className={styles.stageBadge}>
@@ -236,26 +270,19 @@ export default function GameBoard() {
       </div>
 
       <main className={styles.panels}>
-        <Panel
-          imageUrl={stage.leftImg}
-          mistakes={stage.mistakes}
-          foundIds={foundIds}
-          hintId={hintId}
-          onHit={handleHit}
-          onMiss={handleMiss}
-          label="おてほん"
-          color="left"
-        />
-        <Panel
-          imageUrl={stage.rightImg}
-          mistakes={stage.mistakes}
-          foundIds={foundIds}
-          hintId={hintId}
-          onHit={handleHit}
-          onMiss={handleMiss}
-          label="もんだい"
-          color="right"
-        />
+        {panelOrder.map((p, i) => (
+          <Panel
+            key={i}
+            imageUrl={p.img}
+            mistakes={stage.mistakes}
+            foundIds={foundIds}
+            hintId={hintId}
+            onHit={handleHit}
+            onMiss={handleMiss}
+            label={p.label}
+            color={p.color}
+          />
+        ))}
       </main>
 
       <Effects events={effects} onDone={removeEffect} />
@@ -274,6 +301,7 @@ export default function GameBoard() {
           stageIndex={stageIndex}
           stageTotal={stageTotal}
           totalFound={progress.totalFound}
+          crowns={awardedCrowns}
           onNext={handleNext}
           onBack={handleBackToTitle}
         />

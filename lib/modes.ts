@@ -21,3 +21,55 @@ export const MODE_READ_ALOUD: Record<GameMode, string> = {
   ten: "じゅうもん もーどで あそぶよ！",
   thirty: "さんじゅうもん もーどで あそぶよ！",
 };
+
+// ============ むずかしさ（難易度モード） ============
+
+export type Difficulty = "easy" | "normal" | "hard";
+
+export const DIFFICULTIES: Difficulty[] = ["easy", "normal", "hard"];
+
+export const DIFFICULTY_LABELS: Record<Difficulty, string> = {
+  easy: "かんたん",
+  normal: "ふつう",
+  hard: "むずかしい",
+};
+
+export const DIFFICULTY_HINT_LABELS: Record<Difficulty, string> = {
+  easy: "おっきい あたり",
+  normal: "ちょうどいい",
+  hard: "ちっちゃい あたり",
+};
+
+export const DIFFICULTY_READ_ALOUD: Record<Difficulty, string> = {
+  easy: "かんたんで あそぶよ！",
+  normal: "ふつうで あそぶよ！",
+  hard: "むずかしいで あそぶよ！ がんばって！",
+};
+
+// ホットスポットの当たり判定スケール（CSS で transform: scale に渡す）
+export const DIFFICULTY_HOTSPOT_SCALE: Record<Difficulty, number> = {
+  easy: 1.35,
+  normal: 1.0,
+  hard: 0.7,
+};
+
+// むずかしいモードではステージ順をシャッフル & 左右ランダム入れ替え
+export function shouldShuffleStages(difficulty: Difficulty): boolean {
+  return difficulty === "hard";
+}
+
+export function shouldMirrorPanels(difficulty: Difficulty): boolean {
+  return difficulty === "hard";
+}
+
+// ステージ順を必要に応じてシャッフル
+export function buildLevelSequence(mode: GameMode, difficulty: Difficulty): number[] {
+  const base = getLevelsForMode(mode);
+  if (!shouldShuffleStages(difficulty)) return base;
+  const arr = [...base];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}

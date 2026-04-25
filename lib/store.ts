@@ -3,17 +3,36 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { GameMode } from "./modes";
-import { getLevelsForMode } from "./modes";
+import type { GameMode, Difficulty } from "./modes";
+import { buildLevelSequence, shouldMirrorPanels } from "./modes";
 import type { OwnedSticker, DrawResult } from "./stickers";
 import { drawSticker } from "./stickers";
 
+// ステージごとに獲得できる王冠
+export type StageCrowns = {
+  cleared: boolean;   // クリアしたか
+  hintless: boolean;  // ヒントを 1 回も使わずクリアしたか
+  noMiss: boolean;    // お手つき 0 回でクリアしたか
+};
+
+export type CrownsByDifficulty = Record<Difficulty, Record<number, StageCrowns>>;
+
+const emptyCrowns = (): CrownsByDifficulty => ({
+  easy: {},
+  normal: {},
+  hard: {},
+});
+
 type Progress = {
   mode: GameMode;
-  levels: number[];       // そのモードで遊ぶステージ番号の順序
+  difficulty: Difficulty;
+  levels: number[];       // そのモードで遊ぶステージ番号の順序（hard 時はシャッフル）
+  mirroredLevels: number[]; // 左右入れ替えるステージ番号の集合
   currentIndex: number;   // levels の何番目を今遊んでいるか
   foundCount: number;     // そのステージで見つけた間違いの数
   totalFound: number;     // このセッションで累計見つけた数
+  hintUsedThisStage: boolean; // 現ステージでヒントを使ったか
+  missCountThisStage: number; // 現ステージのお手つき数
 };
 
 // アルバムページに配置されたシール 1 枚分
@@ -41,6 +60,10 @@ type PersistState = {
   ownedStickers: OwnedSticker[];
   // ずっと残る: じぶんのシール帳の貼り付けデータ。インデックス = ページ番号 (0-based)
   albumPages: AlbumPlacement[][];
+  // ずっと残る: 直近に選んだむずかしさ（タイトルに復元）
+  preferredDifficulty: Difficulty;
+  // ずっと残る: ステージごとの王冠獲得状況（むずかしさ別）
+  stageCrowns: CrownsByDifficulty;
 };
 
 type GameStore = PersistState & {
@@ -48,9 +71,11 @@ type GameStore = PersistState & {
   progress: Progress | null;
 
   // セッション操作
-  startGame: (mode: GameMode) => void;
-  startFreePlay: (level: number) => void;
+  startGame: (mode: GameMode, difficulty?: Difficulty) => void;
+  startFreePlay: (level: number, difficulty?: Difficulty) => void;
   markFound: () => void;
+  markHintUsed: () => void;
+  markMiss: () => void;
   resetFoundForNextStage: () => void;
   advanceStage: () => void;
   reset: () => void;
@@ -58,6 +83,8 @@ type GameStore = PersistState & {
   // 永続データ操作
   addClearedLevel: (level: number) => void;
   setPlayerName: (name: string | null) => void;
+  setPreferredDifficulty: (d: Difficulty) => void;
+  awardCrowns: (level: number, difficulty: Difficulty, crowns: StageCrowns) => void;
   resetStamps: () => void;
   // シール帳（ガチャ）
   drawAndAddSticker: () => DrawResult;
@@ -70,13 +97,27 @@ type GameStore = PersistState & {
   clearAlbumPage: (page: number) => void;
 };
 
-const initialProgress = (mode: GameMode, levels?: number[]): Progress => ({
-  mode,
-  levels: levels ?? getLevelsForMode(mode),
-  currentIndex: 0,
-  foundCount: 0,
-  totalFound: 0,
-});
+const initialProgress = (
+  mode: GameMode,
+  difficulty: Difficulty,
+  levelsOverride?: number[],
+): Progress => {
+  const levels = levelsOverride ?? buildLevelSequence(mode, difficulty);
+  const mirroredLevels = shouldMirrorPanels(difficulty)
+    ? levels.filter(() => Math.random() < 0.5)
+    : [];
+  return {
+    mode,
+    difficulty,
+    levels,
+    mirroredLevels,
+    currentIndex: 0,
+    foundCount: 0,
+    totalFound: 0,
+    hintUsedThisStage: false,
+    missCountThisStage: 0,
+  };
+};
 
 type PersistedShape = PersistState;
 
@@ -89,13 +130,21 @@ export const useGameStore = create<GameStore>()(
       playerName: null,
       ownedStickers: [],
       albumPages: Array.from({ length: ALBUM_PAGE_COUNT }, () => [] as AlbumPlacement[]),
+      preferredDifficulty: "normal",
+      stageCrowns: emptyCrowns(),
 
       // --- セッション初期値 ---
       progress: null,
 
       // --- セッション操作 ---
-      startGame: (mode) => set({ progress: initialProgress(mode) }),
-      startFreePlay: (level) => set({ progress: initialProgress("ten", [level]) }),
+      startGame: (mode, difficulty) => {
+        const d = difficulty ?? get().preferredDifficulty ?? "normal";
+        set({ progress: initialProgress(mode, d), preferredDifficulty: d });
+      },
+      startFreePlay: (level, difficulty) => {
+        const d = difficulty ?? get().preferredDifficulty ?? "normal";
+        set({ progress: initialProgress("ten", d, [level]), preferredDifficulty: d });
+      },
 
       markFound: () =>
         set((state) => {
@@ -110,10 +159,32 @@ export const useGameStore = create<GameStore>()(
           };
         }),
 
+      markHintUsed: () =>
+        set((state) => {
+          if (!state.progress) return {};
+          if (state.progress.hintUsedThisStage) return {};
+          return { progress: { ...state.progress, hintUsedThisStage: true } };
+        }),
+
+      markMiss: () =>
+        set((state) => {
+          if (!state.progress) return {};
+          return {
+            progress: { ...state.progress, missCountThisStage: state.progress.missCountThisStage + 1 },
+          };
+        }),
+
       resetFoundForNextStage: () =>
         set((state) => {
           if (!state.progress) return {};
-          return { progress: { ...state.progress, foundCount: 0 } };
+          return {
+            progress: {
+              ...state.progress,
+              foundCount: 0,
+              hintUsedThisStage: false,
+              missCountThisStage: 0,
+            },
+          };
         }),
 
       advanceStage: () =>
@@ -124,6 +195,8 @@ export const useGameStore = create<GameStore>()(
               ...state.progress,
               currentIndex: state.progress.currentIndex + 1,
               foundCount: 0,
+              hintUsedThisStage: false,
+              missCountThisStage: 0,
             },
           };
         }),
@@ -139,7 +212,27 @@ export const useGameStore = create<GameStore>()(
 
       setPlayerName: (name) => set({ playerName: name }),
 
-      resetStamps: () => set({ clearedLevels: [], totalFoundAllTime: 0 }),
+      setPreferredDifficulty: (d) => set({ preferredDifficulty: d }),
+
+      awardCrowns: (level, difficulty, crowns) =>
+        set((state) => {
+          const existing = ensureCrowns(state.stageCrowns)[difficulty][level];
+          // 一度取った王冠は失わない（OR で合成）
+          const merged: StageCrowns = {
+            cleared: existing?.cleared || crowns.cleared,
+            hintless: existing?.hintless || crowns.hintless,
+            noMiss: existing?.noMiss || crowns.noMiss,
+          };
+          const all = ensureCrowns(state.stageCrowns);
+          return {
+            stageCrowns: {
+              ...all,
+              [difficulty]: { ...all[difficulty], [level]: merged },
+            },
+          };
+        }),
+
+      resetStamps: () => set({ clearedLevels: [], totalFoundAllTime: 0, stageCrowns: emptyCrowns() }),
 
       drawAndAddSticker: () => {
         const current = get().ownedStickers;
@@ -213,6 +306,8 @@ export const useGameStore = create<GameStore>()(
         playerName: state.playerName,
         ownedStickers: state.ownedStickers,
         albumPages: state.albumPages,
+        preferredDifficulty: state.preferredDifficulty,
+        stageCrowns: state.stageCrowns,
       }),
     },
   ),
@@ -234,6 +329,17 @@ function ensurePages(pages: AlbumPlacement[][] | undefined): AlbumPlacement[][] 
   return filled;
 }
 
+// 永続化データに stageCrowns が無い・形が古い時の補正
+function ensureCrowns(crowns: CrownsByDifficulty | undefined): CrownsByDifficulty {
+  const base = emptyCrowns();
+  if (!crowns) return base;
+  return {
+    easy: { ...base.easy, ...(crowns.easy ?? {}) },
+    normal: { ...base.normal, ...(crowns.normal ?? {}) },
+    hard: { ...base.hard, ...(crowns.hard ?? {}) },
+  };
+}
+
 /** 現在遊ぶべきステージの level 番号を返す。progress がない場合は null。 */
 export function getCurrentLevel(progress: Progress | null): number | null {
   if (!progress) return null;
@@ -245,4 +351,32 @@ export function getCurrentLevel(progress: Progress | null): number | null {
 export function getRemainingStages(progress: Progress | null): number {
   if (!progress) return 0;
   return Math.max(0, progress.levels.length - progress.currentIndex - 1);
+}
+
+/** 現ステージで左右パネルを反転表示すべきか（リミックス）。 */
+export function isCurrentStageMirrored(progress: Progress | null): boolean {
+  if (!progress) return false;
+  const level = progress.levels[progress.currentIndex];
+  if (level === undefined) return false;
+  return progress.mirroredLevels.includes(level);
+}
+
+/** ステージ王冠の合計（cleared/hintless/noMiss それぞれ集計）。 */
+export function getCrownTotals(crowns: CrownsByDifficulty): {
+  cleared: number;
+  hintless: number;
+  noMiss: number;
+  total: number;
+} {
+  let cleared = 0, hintless = 0, noMiss = 0;
+  for (const d of ["easy", "normal", "hard"] as Difficulty[]) {
+    for (const lv of Object.keys(crowns[d] ?? {})) {
+      const c = crowns[d][Number(lv)];
+      if (!c) continue;
+      if (c.cleared) cleared++;
+      if (c.hintless) hintless++;
+      if (c.noMiss) noMiss++;
+    }
+  }
+  return { cleared, hintless, noMiss, total: cleared + hintless + noMiss };
 }

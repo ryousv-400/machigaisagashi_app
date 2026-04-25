@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { speak } from "@/lib/speech";
 import { playSound } from "@/lib/sound";
+import type { StageCrowns } from "@/lib/store";
 import Confetti from "./Confetti";
 import styles from "./ClearScreen.module.css";
 
@@ -11,20 +12,26 @@ type Props = {
   stageIndex: number;
   stageTotal: number;
   totalFound: number;
+  crowns?: StageCrowns | null;
   onNext: () => void;
   onBack: () => void;
 };
 
-export default function ClearScreen({ stageTitle, stageIndex, stageTotal, totalFound, onNext, onBack }: Props) {
+export default function ClearScreen({ stageTitle, stageIndex, stageTotal, totalFound, crowns, onNext, onBack }: Props) {
   const isFinal = stageIndex >= stageTotal;
+  const crownCount = crowns ? [crowns.cleared, crowns.hintless, crowns.noMiss].filter(Boolean).length : 0;
 
   useEffect(() => {
     if (isFinal) {
       speak("ぜんぶ くりあ！ ほんとうに すごいね！ だいせいこう！", { rate: 1.0 });
+    } else if (crownCount === 3) {
+      speak("やったね！ おうかん ３こ かんぺき！", { rate: 1.0 });
+    } else if (crownCount === 2) {
+      speak("やったね！ おうかんも もらえたよ！", { rate: 1.0 });
     } else {
       speak("やったね！ つぎの もんだいに すすもう！", { rate: 1.0 });
     }
-  }, [isFinal]);
+  }, [isFinal, crownCount]);
 
   const handleNext = () => {
     playSound("tap");
@@ -50,6 +57,14 @@ export default function ClearScreen({ stageTitle, stageIndex, stageTotal, totalF
         <p className={styles.subtitle}>
           {isFinal ? "ほんとうに すごいよ！" : `${stageTitle} クリア！`}
         </p>
+
+        {crowns ? (
+          <div className={styles.crowns} aria-label="このステージの おうかん">
+            <CrownItem got={crowns.cleared} label="クリア" emoji="👑" />
+            <CrownItem got={crowns.hintless} label="ヒントなし" emoji="💡" />
+            <CrownItem got={crowns.noMiss} label="ノーミス" emoji="✨" />
+          </div>
+        ) : null}
         <div className={styles.stats}>
           <div className={styles.statBadge}>
             <img src="/kids/ui_star_badge.png" alt="" className={styles.statIcon} />
@@ -75,6 +90,15 @@ export default function ClearScreen({ stageTitle, stageIndex, stageTotal, totalF
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function CrownItem({ got, label, emoji }: { got: boolean; label: string; emoji: string }) {
+  return (
+    <div className={`${styles.crown} ${got ? styles.crownGot : styles.crownMiss}`}>
+      <span className={styles.crownEmoji} aria-hidden="true">{got ? emoji : "・"}</span>
+      <span className={styles.crownLabel}>{label}</span>
     </div>
   );
 }

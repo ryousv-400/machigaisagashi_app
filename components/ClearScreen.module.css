@@ -107,6 +107,60 @@
   margin: 0 2px;
 }
 
+.crowns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  margin: -6px 0 18px;
+}
+
+.crown {
+  border-radius: 18px;
+  padding: 10px 4px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border: 3px solid #fff;
+  font-weight: 900;
+  font-size: 0.78rem;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.crownGot {
+  background: linear-gradient(135deg, #fff7e0, #ffe29a);
+  border-color: #ffcf3a;
+  box-shadow: 0 4px 0 rgba(255, 207, 58, 0.35), 0 0 14px rgba(255, 207, 58, 0.5);
+  animation: crownPop 0.6s cubic-bezier(0.34, 1.8, 0.64, 1) both;
+}
+
+.crownGot:nth-child(2) { animation-delay: 0.15s; }
+.crownGot:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes crownPop {
+  0% { transform: scale(0.4); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.crownMiss {
+  background: rgba(240, 235, 245, 0.7);
+  color: #b8b1c2;
+  border-color: #e8e3ee;
+}
+
+.crownEmoji {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.crownLabel {
+  font-size: 0.78rem;
+  letter-spacing: 0;
+}
+
 .buttons {
   display: flex;
   flex-direction: column;

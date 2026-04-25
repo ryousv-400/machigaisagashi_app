@@ -1,6 +1,7 @@
 .hotspot {
   position: absolute;
-  transform: translate(-50%, -50%);
+  /* むずかしさによってサイズを変化（--hotspot-scale は GameBoard が設定） */
+  transform: translate(-50%, -50%) scale(var(--hotspot-scale, 1));
   background: transparent;
   border: none;
   border-radius: 50%;
