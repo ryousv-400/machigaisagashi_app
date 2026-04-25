@@ -51,6 +51,20 @@
   border-radius: 18px;
   overflow: hidden;
   touch-action: manipulation;
+  margin: 0 auto;
+}
+
+/* スマホ縦持ち：左右パネル 2 枚を縦に並べると画像 1024x1024 が
+   画面に対して大きすぎてはみ出すので、画面高さに合わせて縮める。
+   ヘッダー + マスコット行 + パディング + パネル枠 ≒ 240px を引いた
+   残りを 2 枚で分け合う。aspect-ratio で幅も連動して縮む */
+@media (max-width: 768px) and (orientation: portrait) {
+  .imageBox {
+    width: auto;
+    height: calc((100vh - 240px) / 2);
+    height: calc((100dvh - 240px) / 2);
+    max-width: 100%;
+  }
 }
 
 .bg {

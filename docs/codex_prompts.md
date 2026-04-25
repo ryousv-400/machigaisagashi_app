@@ -129,8 +129,12 @@ Composition: balanced, multiple focal points, bright but storybook-like atmosphe
 
 ### 右版生成プロンプト（差分追加）— 重要：edit API を使う
 
-OpenAI `gpt-image-1` の `images.edit` エンドポイントを使い、ベース画像 +
+OpenAI `gpt-image-2` の `images.edit` エンドポイントを使い、ベース画像 +
 マスク画像 + 部分プロンプトで **差分箇所だけ書き換える**。
+
+> 注: ユーザーは ChatGPT Plus 加入なので、Codex 経由なら `gpt-image-2` を
+> 月額枠内で利用可能。`OPENAI_API_KEY` 不在を理由に SVG にフォールバック
+> する必要はない。
 
 ```python
 # 擬似コード（Python OpenAI SDK の場合）
@@ -164,11 +168,12 @@ current = base_path
 for i, d in enumerate(diffs, 1):
     with open(current, "rb") as img, open(d["mask"], "rb") as mask:
         result = client.images.edit(
-            model="gpt-image-1",
+            model="gpt-image-2",
             image=img,
             mask=mask,
             prompt=d["prompt"],
             size="1024x1024",
+            quality="medium",  # 出来が弱ければ "high" に上げる
         )
     current = f"stage01_step{i}.png"
     save(result, current)
@@ -185,10 +190,13 @@ shutil.copy(current, "stage01_right.png")
 - 「ぱっと見ては気づかないが、よく見ると分かる」レベル
 - 5歳児が指で押せる広さに調整（タップ判定 w/h はメタデータで広めに設定可）
 
-### 試作対象（最初の発注分）
+### 生成対象
 
-最初は **S01 のみ** を作って画質・差分品質を確認。OK なら S02・S03 へ。
-合格ラインに達したら 10 ステージまで展開。
+全 10 ステージ（S01〜S10、level 101〜110）を `gpt-image-2` で本生成。
+SVG 試作版は既に main にあり、テーマ・差分構成・座標は確定済みなので、
+画風だけ水彩タッチに差し替える形になる。
+
+最初は **S01** で画質・差分品質を固めてから、同じ基準で S02〜S10 を連続生成。
 
 各ステージの詳細シーン・差分は `asset_spec.md` セクション 1B を参照。
 
