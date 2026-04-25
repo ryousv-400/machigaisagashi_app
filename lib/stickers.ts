@@ -7,6 +7,7 @@ export type StickerDef = {
   id: number;
   slug: string;
   title: string;
+  series: StickerSeries;
   src: string;
   shinySrc: string;
   fallbackEmoji: string;
@@ -16,12 +17,21 @@ export type StickerDef = {
   alphaBounds?: [number, number, number, number] | null;
 };
 
+export type StickerSeries = "special" | "mini";
+export type StickerFilter = "all" | StickerSeries | "shiny";
+
 export const STICKERS = stickerData as StickerDef[];
 
 export const TOTAL_STICKERS = STICKERS.length;
+export const SPECIAL_STICKERS = STICKERS.filter((s) => s.series === "special");
+export const MINI_STICKERS = STICKERS.filter((s) => s.series === "mini");
 
 export function getSticker(id: number): StickerDef | undefined {
   return STICKERS.find((s) => s.id === id);
+}
+
+export function stickerSeriesLabel(series: StickerSeries): string {
+  return series === "special" ? "スペシャルシール" : "ミニシール";
 }
 
 export function stickerImagePath(sticker: StickerDef, shiny = false): string {
@@ -41,16 +51,23 @@ export type DrawResult =
 
 /**
  * シールを1枚引く。
- * - 未所持があればそこからランダム (new)
+ * - スペシャル未所持があればそこからランダム (new)
+ * - スペシャル完了後、ミニ未所持があればそこからランダム (new)
  * - 全部所持済みなら未キラキラからランダム (shiny)
  * - 全部キラキラ済みならランダム (duplicate)
  */
 export function drawSticker(owned: OwnedSticker[]): DrawResult {
   const ownedMap = new Map(owned.map((o) => [o.id, o]));
-  const unowned = STICKERS.filter((s) => !ownedMap.has(s.id));
+  const unownedSpecial = SPECIAL_STICKERS.filter((s) => !ownedMap.has(s.id));
 
-  if (unowned.length > 0) {
-    const picked = unowned[Math.floor(Math.random() * unowned.length)];
+  if (unownedSpecial.length > 0) {
+    const picked = unownedSpecial[Math.floor(Math.random() * unownedSpecial.length)];
+    return { kind: "new", sticker: picked };
+  }
+
+  const unownedMini = MINI_STICKERS.filter((s) => !ownedMap.has(s.id));
+  if (unownedMini.length > 0) {
+    const picked = unownedMini[Math.floor(Math.random() * unownedMini.length)];
     return { kind: "new", sticker: picked };
   }
 

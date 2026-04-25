@@ -1,9 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useGameStore } from "@/lib/store";
-import { STICKERS, TOTAL_STICKERS, stickerImagePath, type StickerDef, type OwnedSticker } from "@/lib/stickers";
+import {
+  STICKERS,
+  TOTAL_STICKERS,
+  stickerImagePath,
+  stickerSeriesLabel,
+  type StickerDef,
+  type StickerFilter,
+  type OwnedSticker,
+} from "@/lib/stickers";
 import { speak, primeVoices } from "@/lib/speech";
 import { playSound } from "@/lib/sound";
 import styles from "./StickerBook.module.css";
@@ -13,13 +21,21 @@ export default function StickerBook() {
   const owned = useGameStore((s) => s.ownedStickers);
   const playerName = useGameStore((s) => s.playerName);
 
-  const ownedMap = new Map(owned.map((o) => [o.id, o]));
+  const ownedMap = useMemo(() => new Map(owned.map((o) => [o.id, o])), [owned]);
   const ownedCount = owned.length;
   const shinyCount = owned.filter((o) => o.shiny).length;
+  const specialOwnedCount = owned.filter((o) => STICKERS.find((s) => s.id === o.id)?.series === "special").length;
+  const miniOwnedCount = owned.filter((o) => STICKERS.find((s) => s.id === o.id)?.series === "mini").length;
   const allCollected = ownedCount >= TOTAL_STICKERS;
   const allShiny = shinyCount >= TOTAL_STICKERS;
 
   const [focused, setFocused] = useState<StickerDef | null>(null);
+  const [filter, setFilter] = useState<StickerFilter>("all");
+  const visibleStickers = useMemo(() => {
+    if (filter === "shiny") return STICKERS.filter((s) => ownedMap.get(s.id)?.shiny);
+    if (filter === "special" || filter === "mini") return STICKERS.filter((s) => s.series === filter);
+    return STICKERS;
+  }, [filter, ownedMap]);
 
   useEffect(() => {
     primeVoices();
@@ -96,6 +112,13 @@ export default function StickerBook() {
         </button>
       </div>
 
+      <div className={styles.tabs} aria-label="シールの しゅるい">
+        <FilterTab active={filter === "all"} label="ぜんぶ" count={ownedCount} total={TOTAL_STICKERS} onClick={() => setFilter("all")} />
+        <FilterTab active={filter === "special"} label="スペシャル" count={specialOwnedCount} total={30} onClick={() => setFilter("special")} />
+        <FilterTab active={filter === "mini"} label="ミニ" count={miniOwnedCount} total={70} onClick={() => setFilter("mini")} />
+        <FilterTab active={filter === "shiny"} label="キラキラ" count={shinyCount} total={TOTAL_STICKERS} onClick={() => setFilter("shiny")} />
+      </div>
+
       {allShiny ? (
         <div className={styles.allShinyBanner}>
           <img src="/kids/mascot_bunny.png" alt="" className={styles.bannerMascot} />
@@ -116,16 +139,23 @@ export default function StickerBook() {
         </div>
       ) : null}
 
-      <div className={styles.grid}>
-        {STICKERS.map((s) => (
+      {visibleStickers.length > 0 ? (
+        <div className={styles.grid}>
+          {visibleStickers.map((s) => (
           <StickerCell
             key={s.id}
             sticker={s}
             owned={ownedMap.get(s.id)}
             onTap={() => handleTap(s)}
           />
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className={styles.emptyPanel}>
+          <img src="/kids/mascot_bunny.png" alt="" className={styles.emptyMascot} />
+          <span>キラキラは まだだよ</span>
+        </div>
+      )}
 
       {focused ? (
         <FocusOverlay
@@ -135,6 +165,34 @@ export default function StickerBook() {
         />
       ) : null}
     </div>
+  );
+}
+
+function FilterTab({
+  active,
+  label,
+  count,
+  total,
+  onClick,
+}: {
+  active: boolean;
+  label: string;
+  count: number;
+  total: number;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={`${styles.tabBtn} ${active ? styles.tabActive : ""}`}
+      onClick={onClick}
+      aria-pressed={active}
+    >
+      <span>{label}</span>
+      <strong>
+        {count}/{total}
+      </strong>
+    </button>
   );
 }
 
@@ -152,11 +210,14 @@ function StickerCell({
   return (
     <button
       type="button"
-      className={`${styles.cell} ${isOwned ? styles.cellOwned : styles.cellLocked} ${isShiny ? styles.cellShiny : ""}`}
+      className={`${styles.cell} ${sticker.series === "special" ? styles.cellSpecial : styles.cellMini} ${isOwned ? styles.cellOwned : styles.cellLocked} ${isShiny ? styles.cellShiny : ""}`}
       onClick={onTap}
       aria-label={isOwned ? sticker.title : "みしゅとく"}
       style={isOwned ? { background: sticker.baseColor } : undefined}
     >
+      <span className={styles.seriesMark} aria-hidden="true">
+        {sticker.series === "special" ? "★" : "●"}
+      </span>
       {isOwned ? (
         <StickerImage sticker={sticker} shiny={isShiny} className={styles.cellArt} />
       ) : (
@@ -179,12 +240,15 @@ function FocusOverlay({
   return (
     <div className={styles.focusBackdrop} onClick={onClose} role="dialog" aria-modal="true">
       <div className={`${styles.focusCard} ${owned.shiny ? styles.focusShiny : ""}`} onClick={(e) => e.stopPropagation()}>
+        <div className={`${styles.seriesBadge} ${sticker.series === "special" ? styles.seriesSpecial : styles.seriesMini}`}>
+          {stickerSeriesLabel(sticker.series)}
+        </div>
         <div className={styles.focusArtWrap} style={{ background: sticker.baseColor }}>
           <StickerImage sticker={sticker} shiny={owned.shiny} className={styles.focusArt} />
           {owned.shiny ? <span className={styles.shinyRing} aria-hidden="true" /> : null}
         </div>
         <p className={styles.focusName}>{sticker.title}</p>
-        {owned.shiny ? <p className={styles.focusTag}>✨ キラキラ ✨</p> : null}
+        <p className={styles.focusTag}>{owned.shiny ? "✨ キラキラゲット！ ✨" : "キラキラを あつめよう"}</p>
         <div className={styles.compareRow} aria-label="ふつうと キラキラの ちがい">
           <div className={styles.compareItem}>
             <div className={styles.compareArtWrap} style={{ background: sticker.baseColor }}>

@@ -398,16 +398,16 @@ def make_contact_sheet(manifest: list[dict[str, object]], key: str, filename: st
 
 def main() -> None:
     PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
-    catalog = [(sid, slug, title, fallback, color, "existing") for sid, slug, title, fallback, color in BASE_STAMPS]
+    catalog = [(sid, slug, title, fallback, color, "existing", "special") for sid, slug, title, fallback, color in BASE_STAMPS]
     for offset, item in enumerate(NEW_STAMPS, start=31):
         slug, title, fallback, color, shape = item
-        catalog.append((offset, f"stamp_{offset:02d}_{slug}", title, fallback, color, shape))
+        catalog.append((offset, f"stamp_{offset:02d}_{slug}", title, fallback, color, shape, "mini"))
 
     if len(catalog) != 100:
         raise RuntimeError(f"expected 100 stamps, got {len(catalog)}")
 
     manifest: list[dict[str, object]] = []
-    for sid, slug, title, fallback, base_color, shape in catalog:
+    for sid, slug, title, fallback, base_color, shape, series in catalog:
         normal_path = PUBLIC_DIR / f"{slug}.png"
         if shape != "existing":
             make_generated_stamp((sid, slug, title, fallback, base_color, shape))
@@ -423,6 +423,7 @@ def main() -> None:
                     "id": sid,
                     "slug": slug,
                     "title": title,
+                    "series": series,
                     "src": f"/kids/stamps/{normal_path.name}",
                     "shinySrc": f"/kids/stamps/{shiny_path.name}",
                     "fallbackEmoji": fallback,
