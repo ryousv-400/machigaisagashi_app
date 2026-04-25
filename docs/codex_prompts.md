@@ -127,66 +127,67 @@ A small wooden signpost on the lower-right is blank (no text).
 Composition: balanced, multiple focal points, bright but storybook-like atmosphere.
 ```
 
-### 右版生成プロンプト（差分追加）— 重要：edit API を使う
+### 右版生成プロンプト — reference image 路線（mask 方式は不採用）
 
-OpenAI `gpt-image-2` の `images.edit` エンドポイントを使い、ベース画像 +
-マスク画像 + 部分プロンプトで **差分箇所だけ書き換える**。
+**重要**: gpt-image-2 の `images.edit` (マスク付き inpainting) は前回検証で
+**マスク領域だけの局所書き換えができず画像全体を再生成してしまう**ため、
+mask 方式は使わない。
 
-> 注: ユーザーは ChatGPT Plus 加入なので、Codex 経由なら `gpt-image-2` を
-> 月額枠内で利用可能。`OPENAI_API_KEY` 不在を理由に SVG にフォールバック
-> する必要はない。
+代わりに **左版を reference image として渡し、agentic に「○○を消す／増やす／変える」
+と指示して右版を生成** する路線を採用する。
+
+> ユーザーは ChatGPT Plus 加入なので、Codex 経由なら `gpt-image-2` を月額枠内で
+> 利用可能。`OPENAI_API_KEY` 不在を理由に SVG にフォールバックする必要はない。
 
 ```python
-# 擬似コード（Python OpenAI SDK の場合）
+# 擬似コード（最新 OpenAI SDK の reference image / image-to-image 機能を使用）
+# 具体的なエンドポイント名は gpt-image-2 の最新ドキュメント参照
 from openai import OpenAI
 client = OpenAI()
 
-# 1) ベース画像
-base_path = "stage01_left.png"
+# 1) ベース画像（左版）を生成
+left = client.images.generate(
+    model="gpt-image-2",
+    prompt=BASE_PROMPT,  # 上記「ベース画像生成プロンプト」
+    size="1024x1024",
+    quality="medium",
+)
+save(left, "stage01_left.png")
 
-# 2) 差分ごとのマスク（白=書き換え対象、黒=保持）
-diffs = [
-    {
-        "mask": "stage01_diff1_mask.png",
-        "prompt": "Add one extra small red-with-white-dots mushroom right next to the existing one near the streambank, blending into the watercolor style.",
-    },
-    {
-        "mask": "stage01_diff2_mask.png",
-        "prompt": "Tint the leaves of the leftmost tree slightly more yellow (autumnal warmth), keeping the same shapes and outlines.",
-    },
-    {
-        "mask": "stage01_diff3_mask.png",
-        "prompt": "Remove ONE of the two flying blue birds. Replace with empty sky/forest background that matches the surrounding watercolor wash.",
-    },
-    {
-        "mask": "stage01_diff4_mask.png",
-        "prompt": "Slightly change the curl of the fox's tail — make it curve up more sharply at the tip, same fur color and style.",
-    },
-]
+# 2) 左版を reference として、差分を全て反映した右版を 1 回で生成
+#    プロンプトに 4〜5 箇所の差分を「位置と内容」で明示
+diff_prompt = """
+Generate a near-identical version of the reference image, with ONLY these subtle local changes:
+1. Add ONE extra small red-with-white-dots mushroom near the streambank around (25%, 72%) of the image.
+2. Tint the leaves of the leftmost tree slightly more yellow (autumnal warmth) around (15%, 26%).
+3. Remove ONE of the two flying blue birds in the upper area around (67%, 23%).
+4. Change ONLY the curl of the fox's tail at (74%, 69%) — curve up more sharply at the tip.
 
-current = base_path
-for i, d in enumerate(diffs, 1):
-    with open(current, "rb") as img, open(d["mask"], "rb") as mask:
-        result = client.images.edit(
-            model="gpt-image-2",
-            image=img,
-            mask=mask,
-            prompt=d["prompt"],
-            size="1024x1024",
-            quality="medium",  # 出来が弱ければ "high" に上げる
-        )
-    current = f"stage01_step{i}.png"
-    save(result, current)
+Keep EVERYTHING ELSE — composition, characters, colors, lighting, background — identical to the reference image.
+Use the same watercolor + ink storybook style.
+"""
 
-# 全差分を適用したものを _right.png として保存
-shutil.copy(current, "stage01_right.png")
+right = client.images.generate(
+    model="gpt-image-2",
+    prompt=diff_prompt,
+    image=open("stage01_left.png", "rb"),  # reference image として渡す（API の最新仕様確認）
+    size="1024x1024",
+    quality="medium",
+)
+save(right, "stage01_right.png")
 ```
 
-### 右版生成のチェックポイント
+> 注: `client.images.generate` への reference image の渡し方は gpt-image-2 の
+> 最新ドキュメント（developers.openai.com/api/docs/models/gpt-image-2）を確認。
+> reference image が複数渡せる場合は左版 + マスク領域の輪郭ヒント等も併用可。
 
-- **差分以外のピクセルが完全一致** していること（許容差 ±2 階調）
-- 各差分が **画像全体の 6% 四方以上** のホットスポットでカバーできる
-- 差分同士が **12% 以上離れている**
+### 右版生成のチェックポイント（緩めの基準）
+
+- 意図した 4〜5 箇所の差分が **大きなクラスタ** として検出される
+- それ以外の領域は「人間の目で見て概ね同じ」（完全ピクセル一致は求めない）
+- `node scripts/find_diffs.mjs left.png right.png --tolerance 8 --min-pixels 200 --merge-distance 48`
+  で 4〜5 クラスタが検出され、各クラスタの中心がメタデータ (x, y) と概ね一致
+- 各差分が画像全体の 6% 四方以上のホットスポットでカバーできる
 - 「ぱっと見ては気づかないが、よく見ると分かる」レベル
 - 5歳児が指で押せる広さに調整（タップ判定 w/h はメタデータで広めに設定可）
 
