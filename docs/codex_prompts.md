@@ -88,6 +88,121 @@ Apply EXACTLY these 3 differences (and no others):
 
 ---
 
+## 1B. リアル差分版ステージ（むずかしいモード専用）
+
+通常版とは別の **絵本風 / 微小差分** ステージ。仕様の本体は
+`asset_spec.md` セクション 1B を参照。
+
+### ベース画像生成プロンプト（左版 = `_left.png`）
+
+```
+Generate base illustration for a children's spot-the-difference book — "subtle differences" tier.
+
+Style requirements:
+- Soft watercolor + ink storybook illustration. Reference: Japanese picture books like
+  "ノンタン", "パンどろぼう". Slightly more detailed than typical "こどもちゃれんじ" style.
+- Multiple animal characters arranged in a balanced composition.
+- Mid-density background with subtle painted details (mushrooms, plants, small props).
+- Pastel + slightly desaturated palette, 8-12 colors total. NO neon.
+- Thick but slightly textured ink lines (varying line weight).
+- Soft watercolor wash with gentle paper texture, NO heavy shadows, NO photorealism.
+- Square 1024x1024 PNG, no border, no text, no UI chrome.
+- Whole scene readable as a single illustration (no panels).
+
+Scene: {SCENE_PROMPT}
+```
+
+例（S01: まほうの もり）:
+
+```
+Scene: A magical green forest with a small stream winding from left to right.
+A friendly brown bear stands center-left, smiling, gesturing toward a pink rabbit beside it.
+A small white rabbit sits on the lower-left bank near a pink crystal cluster.
+A small orange fox is on the lower-right, half-crouched.
+Two small blue birds fly across the upper portion of the image.
+A wise owl peeks from a hollow on the right side of a large tree.
+Mushrooms (red and pink) and small flowers are scattered across the foreground.
+Soft beams of light filter through the trees from the upper background.
+A small wooden signpost on the lower-right is blank (no text).
+Composition: balanced, multiple focal points, bright but storybook-like atmosphere.
+```
+
+### 右版生成プロンプト（差分追加）— 重要：edit API を使う
+
+OpenAI `gpt-image-1` の `images.edit` エンドポイントを使い、ベース画像 +
+マスク画像 + 部分プロンプトで **差分箇所だけ書き換える**。
+
+```python
+# 擬似コード（Python OpenAI SDK の場合）
+from openai import OpenAI
+client = OpenAI()
+
+# 1) ベース画像
+base_path = "stage01_left.png"
+
+# 2) 差分ごとのマスク（白=書き換え対象、黒=保持）
+diffs = [
+    {
+        "mask": "stage01_diff1_mask.png",
+        "prompt": "Add one extra small red-with-white-dots mushroom right next to the existing one near the streambank, blending into the watercolor style.",
+    },
+    {
+        "mask": "stage01_diff2_mask.png",
+        "prompt": "Tint the leaves of the leftmost tree slightly more yellow (autumnal warmth), keeping the same shapes and outlines.",
+    },
+    {
+        "mask": "stage01_diff3_mask.png",
+        "prompt": "Remove ONE of the two flying blue birds. Replace with empty sky/forest background that matches the surrounding watercolor wash.",
+    },
+    {
+        "mask": "stage01_diff4_mask.png",
+        "prompt": "Slightly change the curl of the fox's tail — make it curve up more sharply at the tip, same fur color and style.",
+    },
+]
+
+current = base_path
+for i, d in enumerate(diffs, 1):
+    with open(current, "rb") as img, open(d["mask"], "rb") as mask:
+        result = client.images.edit(
+            model="gpt-image-1",
+            image=img,
+            mask=mask,
+            prompt=d["prompt"],
+            size="1024x1024",
+        )
+    current = f"stage01_step{i}.png"
+    save(result, current)
+
+# 全差分を適用したものを _right.png として保存
+shutil.copy(current, "stage01_right.png")
+```
+
+### 右版生成のチェックポイント
+
+- **差分以外のピクセルが完全一致** していること（許容差 ±2 階調）
+- 各差分が **画像全体の 6% 四方以上** のホットスポットでカバーできる
+- 差分同士が **12% 以上離れている**
+- 「ぱっと見ては気づかないが、よく見ると分かる」レベル
+- 5歳児が指で押せる広さに調整（タップ判定 w/h はメタデータで広めに設定可）
+
+### 試作対象（最初の発注分）
+
+最初は **S01 のみ** を作って画質・差分品質を確認。OK なら S02・S03 へ。
+合格ラインに達したら 10 ステージまで展開。
+
+各ステージの詳細シーン・差分は `asset_spec.md` セクション 1B を参照。
+
+### メタデータ JSON 出力先
+
+```
+public/kids/subtle/stages.generated.json
+```
+
+形式は `asset_spec.md` セクション 1B の例を参照。
+`tier: "subtle"` を必ず付与する。
+
+---
+
 ## 2. マスコットキャラクター生成プロンプト
 
 ```

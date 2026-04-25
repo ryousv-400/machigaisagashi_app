@@ -47,7 +47,6 @@ export default function GameBoard() {
 
   const level = getCurrentLevel(progress);
   const difficulty = progress?.difficulty ?? "normal";
-  const hotspotScale = DIFFICULTY_HOTSPOT_SCALE[difficulty];
   const mirrored = isCurrentStageMirrored(progress);
 
   // progress が null（直接 URL アクセスされたとか）のときはタイトルに戻す
@@ -61,6 +60,11 @@ export default function GameBoard() {
 
   // ---- ゲーム状態 ----
   const stage = useMemo(() => (level ? getStage(level) : null), [level]);
+
+  // ホットスポット倍率は (むずかしさ × ステージ tier) で決まる:
+  // - subtle ステージは差分が既に小さく設計されているので、むずかしいでも縮小しない
+  // - 通常ステージは従来通り：かんたん 1.35x / ふつう 1.0x / むずかしい 0.7x
+  const hotspotScale = stage?.tier === "subtle" ? 1.0 : DIFFICULTY_HOTSPOT_SCALE[difficulty];
   const [foundIds, setFoundIds] = useState<Set<number>>(new Set());
   const [mascotMood, setMascotMood] = useState<MascotMood>("idle");
   const [mascotMessage, setMascotMessage] = useState<string>("");
