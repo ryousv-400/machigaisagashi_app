@@ -85,14 +85,15 @@ export function playSound(type: SoundType): void {
   }
 
   if (type === "tap") {
-    // ぽにゅっ（ボタンタップ）
+    // ピコッ♪（ボタンタップ） — 失敗音と区別するため上昇するきれいなトーンに
     const osc = ctx.createOscillator();
-    osc.type = "sine";
+    osc.type = "triangle";
     osc.connect(gain);
-    osc.frequency.setValueAtTime(880, now);
-    osc.frequency.exponentialRampToValueAtTime(660, now + 0.08);
-    gain.gain.setValueAtTime(0.15, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+    osc.frequency.setValueAtTime(880, now);                    // A5
+    osc.frequency.linearRampToValueAtTime(1318.51, now + 0.06); // E6 まで上昇
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.18, now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.13);
     osc.start(now);
     osc.stop(now + 0.15);
     return;
