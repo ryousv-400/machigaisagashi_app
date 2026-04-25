@@ -9,7 +9,7 @@
     "start": "next start",
     "serve": "npx http-server out -p 8080 -c-1",
     "typecheck": "tsc --noEmit",
-    "check": "tsc --noEmit && next build"
+    "check": "tsc --noEmit --incremental false && next build"
   },
   "dependencies": {
     "next": "^15.0.0",

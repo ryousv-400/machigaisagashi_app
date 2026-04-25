@@ -12,6 +12,9 @@
   position: relative;
   z-index: 2;
   overflow-y: auto;
+  /* body が overflow: hidden のため、子要素の横はみ出しが見えなくなる。
+     コンテナ側で安全側にクリップしておく */
+  overflow-x: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
@@ -20,15 +23,17 @@
   position: relative;
   margin-top: 4vh;
   padding: 12px 24px;
+  max-width: 100%;
   animation: bounce-soft 3s ease-in-out infinite;
 }
 
 .title {
-  font-size: clamp(1.9rem, 9vw, 3.2rem);
+  font-size: clamp(1.6rem, 8vw, 3.2rem);
   margin: 0;
   font-weight: 900;
   letter-spacing: -0.02em;
   white-space: nowrap;
+  max-width: 100%;
   /* rainbow-text は color: transparent なので text-shadow ではなく
      filter: drop-shadow でレインボーの文字自体に影を落とす */
   filter:
@@ -40,6 +45,7 @@
   position: absolute;
   inset: -40px 0 -40px 0;
   pointer-events: none;
+  overflow: hidden;
 }
 
 .floater {
@@ -340,6 +346,8 @@
   gap: 8px;
   flex-wrap: wrap;
   justify-content: center;
+  width: 100%;
+  max-width: 100%;
 }
 
 .statPill {
@@ -353,6 +361,8 @@
   color: var(--text);
   font-size: 0.9rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .statIcon {
