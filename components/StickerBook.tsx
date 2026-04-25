@@ -158,7 +158,7 @@ function StickerCell({
       style={isOwned ? { background: sticker.baseColor } : undefined}
     >
       {isOwned ? (
-        <StickerImage sticker={sticker} className={styles.cellArt} />
+        <StickerImage sticker={sticker} shiny={isShiny} className={styles.cellArt} />
       ) : (
         <span className={styles.lockMark} aria-hidden="true">?</span>
       )}
@@ -180,11 +180,25 @@ function FocusOverlay({
     <div className={styles.focusBackdrop} onClick={onClose} role="dialog" aria-modal="true">
       <div className={`${styles.focusCard} ${owned.shiny ? styles.focusShiny : ""}`} onClick={(e) => e.stopPropagation()}>
         <div className={styles.focusArtWrap} style={{ background: sticker.baseColor }}>
-          <StickerImage sticker={sticker} className={styles.focusArt} />
+          <StickerImage sticker={sticker} shiny={owned.shiny} className={styles.focusArt} />
           {owned.shiny ? <span className={styles.shinyRing} aria-hidden="true" /> : null}
         </div>
         <p className={styles.focusName}>{sticker.title}</p>
         {owned.shiny ? <p className={styles.focusTag}>✨ キラキラ ✨</p> : null}
+        <div className={styles.compareRow} aria-label="ふつうと キラキラの ちがい">
+          <div className={styles.compareItem}>
+            <div className={styles.compareArtWrap} style={{ background: sticker.baseColor }}>
+              <StickerImage sticker={sticker} className={styles.compareArt} />
+            </div>
+            <span>ふつう</span>
+          </div>
+          <div className={styles.compareItem}>
+            <div className={`${styles.compareArtWrap} ${styles.compareShiny}`} style={{ background: sticker.baseColor }}>
+              <StickerImage sticker={sticker} shiny className={styles.compareArt} />
+            </div>
+            <span>{owned.shiny ? "キラキラ" : "キラキラみほん"}</span>
+          </div>
+        </div>
         <button type="button" className={styles.focusClose} onClick={onClose}>
           とじる
         </button>
@@ -194,7 +208,7 @@ function FocusOverlay({
 }
 
 /** 画像 fallback 付きシール表示。 */
-export function StickerImage({ sticker, className }: { sticker: StickerDef; className?: string }) {
+export function StickerImage({ sticker, shiny = false, className }: { sticker: StickerDef; shiny?: boolean; className?: string }) {
   const [errored, setErrored] = useState(false);
   if (errored) {
     return (
@@ -205,7 +219,7 @@ export function StickerImage({ sticker, className }: { sticker: StickerDef; clas
   }
   return (
     <img
-      src={stickerImagePath(sticker)}
+      src={stickerImagePath(sticker, shiny)}
       alt={sticker.title}
       className={className}
       draggable={false}

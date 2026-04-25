@@ -91,7 +91,11 @@ export default function StickerReveal({ result, playerName, onDone }: Props) {
               className={styles.revealArtWrap}
               style={{ background: result.sticker.baseColor }}
             >
-              <StickerImage sticker={result.sticker} className={styles.revealArt} />
+              <StickerImage
+                sticker={result.sticker}
+                shiny={result.kind === "shiny"}
+                className={styles.revealArt}
+              />
               {result.kind === "shiny" ? <span className={styles.shinyRing} aria-hidden="true" /> : null}
             </div>
             <p className={`${styles.revealName} ${result.kind === "shiny" ? "rainbow-text" : ""}`}>

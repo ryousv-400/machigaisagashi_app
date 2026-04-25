@@ -55,6 +55,7 @@
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .summaryBadge {
@@ -93,6 +94,7 @@
 .albumLinkBtn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   border: none;
   border-radius: 999px;
@@ -102,7 +104,8 @@
   color: #fff;
   background: linear-gradient(135deg, #ffb3d1, #ff6fa8 60%, #d4b3ff);
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
-  margin-left: auto;
+  margin-left: 0;
+  max-width: 100%;
   animation: pulse-soft 2.2s ease-in-out infinite;
 }
 
@@ -258,7 +261,7 @@
   background: #fff;
   border-radius: 28px;
   padding: 20px 24px 22px;
-  max-width: 320px;
+  max-width: 360px;
   width: 100%;
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.3);
   display: flex;
@@ -309,6 +312,50 @@
   letter-spacing: 2px;
 }
 
+.compareRow {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.compareItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: var(--text);
+}
+
+.compareArtWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 18px;
+  border: 4px solid #fff;
+  padding: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.compareShiny {
+  background-image:
+    radial-gradient(circle at 28% 24%, rgba(255, 255, 255, 0.72), transparent 32%),
+    linear-gradient(135deg, #fff7e0, #f1e1ff, #e0f4ff);
+}
+
+.compareArt {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 7px rgba(0, 0, 0, 0.14));
+}
+
 .focusClose {
   margin-top: 4px;
   border: none;
@@ -327,6 +374,15 @@
 }
 
 @media (max-width: 480px) {
+  .summary {
+    justify-content: center;
+  }
+  .albumLinkBtn {
+    width: 100%;
+    flex: 0 0 100%;
+    margin-left: 0;
+    justify-content: center;
+  }
   .grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 8px;

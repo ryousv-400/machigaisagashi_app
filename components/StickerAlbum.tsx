@@ -222,7 +222,11 @@ export default function StickerAlbum() {
                 }}
                 onPointerDown={(e) => handlePlacementPointerDown(e, p.uid)}
               >
-                <StickerImage sticker={sticker} className={styles.placementImg} />
+                <StickerImage
+                  sticker={sticker}
+                  shiny={!!ownedMap.get(sticker.id)?.shiny}
+                  className={styles.placementImg}
+                />
               </div>
             );
           })}
@@ -267,7 +271,7 @@ export default function StickerAlbum() {
                 aria-label={info ? s.title : "みしゅとく"}
                 style={info ? { background: s.baseColor } : undefined}
               >
-                <StickerImage sticker={s} className={styles.stockArt} />
+                <StickerImage sticker={s} shiny={!!info?.shiny} className={styles.stockArt} />
                 {info?.shiny ? <span className={styles.stockShinyMark} aria-hidden="true">✨</span> : null}
               </button>
             );
